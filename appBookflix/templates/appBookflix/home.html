@@ -1,0 +1,14 @@
+
+{% extends 'appBookflix/main.html' %} 
+{% load static %}
+
+{% block content%}
+<h1>FUNCIONAAA</h1>
+
+<p>La url de la imagen es: {{l.portada}} </p>
+</body>
+{%for l in Libro%}
+{{l.titulo}}
+<img src="{{l.portada.url}}" alt="fondo" >
+{%endfor%}
+{% endblock%}
