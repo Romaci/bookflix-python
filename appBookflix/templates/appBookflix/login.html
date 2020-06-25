@@ -1,0 +1,69 @@
+<style>
+    #barra li{
+    display:inline;
+    text-align: initial;
+    font-size: medium;
+}
+button{
+    background-color: aqua;
+}
+</style>
+
+{% if request.user.is_active %}
+
+{% include "appBookflix/navbar.html" %}
+
+<h1>Usted ya está logueado</h1>
+
+<ul id="barra">
+    <li>Quiere entrar con otra cuenta? toca el link de LogOut en la barra de ariba</li>
+</ul>
+
+<hr />
+{% else %}
+
+{% include "appBookflix/navbar.html" %}
+
+<h2>Iniciar sesión</h2>
+
+
+
+<form method="POST">
+    {{ form.as_p }}
+    {% csrf_token %}
+    <button type="submit">Login</button>
+</form>
+
+<a href="/register_page">Registrarse</a>
+<p>    </p>
+<a href="/recuperarCuenta">Olvidaste tu Contrasena?</a>
+<hr>
+
+
+<ul id="libros">
+    <h3>Libros: </h3>
+    {% if libros %}
+    {% for libro in libros %}
+       <li style="display: inline-block;margin-left: 1%;border: 10px;">
+            <div>
+                <a  href="/libro/{{libro.autor}}">{{libro.titulo}}</a> <br>
+                
+                <!---->
+                <img style="max-width:275px; max-height:275px;" src="{{libro.portada.url}}"  alt="Portada" > <br>
+
+                <p>Autor: {{libro.autor}}</p> 
+                
+                <p> Género(s): {%for genero in libro.genders.all %}
+                    | {{genero.nombre}} |
+
+                {% endfor %}
+                </p>
+            </div>
+        </li>
+    {% endfor %}
+    {% else %}
+    <p>No hay libros dados de alta disponibles</p>
+    {% endif %}
+
+</ul>
+{% endif %}

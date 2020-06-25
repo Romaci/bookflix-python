@@ -1,0 +1,148 @@
+{% load static %}
+<html>
+    <style>
+        #publicaciones{
+            margin: 10;
+            border: 10px;
+            padding:70px;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        #publicaciones li{
+            display: inline;
+            margin-left: 15%;
+            border: 10px;
+        }
+        #libros{
+            margin: 10 10 10 10;
+            border: 10px 10px 10px 10px;
+            padding:70px;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        #libros li{
+            display: inline-block;
+            margin: 10px 10px 10px 10px;
+            border: 10px 10px 10px 10px ;
+        }
+        #libros div p{
+            display: inline-block;
+            margin-left: 1%;
+            border: 10px;
+        }
+
+    </style>
+<body>
+    
+
+{% include "appBookflix/navbar.html" %}
+
+
+<h1 style="color: black;">
+    {# <p> {{request.session.nombrePerfil}}</p> #}      
+
+</h1>
+
+ <hr>
+ <ul id="libros";>
+
+    {% if libros %}
+    <h2>Libros que no leyó</h2>
+    {% for libro in libros %}
+       <li >
+            {% if request.user.plan == "free"  %}
+            <div>
+                <img  src="{{libro.image.url}}"  alt="fondo" >
+                <br>
+                <a href="/solicitar_cambio/">{{libro.title}}</a>
+                <!-- -->
+                <br> 
+                <p> Autor(a): {{libro.author.name}}, {{libro.author.last_name}} </p>
+                <br>
+                <p> Género(s): {%for genero in libro.genders.all %}
+                    | {{genero.name}} |
+
+                {% endfor %}
+                </p>
+            </div>               
+            {% elif request.user.plan == "normal" and libro.on_normal == True %}
+                <div>
+                    <img style="max-width:275px; max-height:275px;" src="{{libro.image.url}}"  alt="fondo" >
+                    <br>
+                    <a href="/leer_libro/{{libro.isbn}}">{{libro.title}}</a>
+                    <!-- -->
+                    <br> 
+                    <p> Autor(a): {{libro.author.name}}, {{libro.author.last_name}} </p>
+                    <br>
+                    <p> Género(s): {%for genero in libro.genders.all %}
+                        | {{genero.name}} |
+
+                    {% endfor %}
+                    </p>
+                </div>
+            {% else %}
+                <div>
+                    <img style="max-width:275px; max-height:275px;" src="{{libro.image.url}}"  alt="fondo" >
+                    <br>
+                    <a href="/leer_libro/{{libro.isbn}}">{{libro.title}}</a>
+                    <!-- -->
+                    <br> 
+                    <p> Autor(a): {{libro.author.name}}, {{libro.author.last_name}} </p>
+                    <br>
+                    <p> Género(s): {%for genero in libro.genders.all %}
+                        | {{genero.name}} |
+
+                    {% endfor %}
+                    </p>
+                </div>
+            {% endif%}
+              
+        </li>
+    {% endfor %}
+    {% else %}
+    <p>No hay libros dados de alta disponibles</p>
+    {% endif %}
+
+
+
+
+
+</ul>
+
+
+{% if historial_libros %}
+    <h2>Libros Que está leyendo</h2>
+    {% for libro in historial_libros %}
+        <li style="display:inline-block; margin: 20px;">
+            <div>
+                <h3>El perfil {{libro.profile}} añadio el libro: <br> {{libro.book}} <br> a {{libro.state}}</h3>
+                <br>
+                <img style="max-width:275px; max-height:275px;" src="{{libro.book.image.url}}"  alt="fondo" > 
+            </div>
+            <br>
+        </li>
+    {% endfor %}
+{% endif %}
+
+
+
+
+{% if historial_libros_cap %}
+<h2>Libros por capítulo que está leyendo</h2>
+{% for libro in historial_libros_cap %}
+    <li style="display:inline-block; margin: 20px;">
+        <div>
+            <h3>El perfil {{libro.profile}} añadio el libro: <br> {{libro.book}} <br> a {{libro.state}}</h3>
+            <br>
+            <img style="max-width:275px; max-height:275px;" src="{{libro.book.image.url}}"  alt="fondo" > 
+        </div>
+        <br>
+    </li>
+{% endfor %}        
+{% endif %}
+
+
+
+</body>
+    
+</html>
