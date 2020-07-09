@@ -20,3 +20,6 @@ PARA CREAR UN SUPER USER TENGO QUE PONER (antes del hacer run server, lo tengo q
 
 (bookflixApp) C:\Users\TatiFio\Documents\bookflix\bookflix>python manage.py createsuperuser 
 
+
+
+

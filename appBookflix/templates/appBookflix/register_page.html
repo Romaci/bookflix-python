@@ -1,0 +1,38 @@
+{% block content %}
+<h2>Registro</h2>
+<form method="post">{% csrf_token %}
+    {% for field in user_creation_form%}
+        <p>
+            {{field.label_tag}}
+            {{field}}
+
+            {% if field.help_text %}
+                <small style="color: grey;">{{field.help_text}}</small>
+            {% endif %}
+
+            {% for error in field.errors %}
+                <p style="color:red;">{{error}}</p>
+            {% endfor %}
+        </p>
+    {% endfor %}
+
+    <p>Datos de su tarjeta</p>
+    {% for field in creacion_tarjeta %}
+    <p>
+        {{field.label_tag}}
+        {{field}}
+
+        {%for error in field.errors%}
+            <p style="color: red;">{{error}} </p>
+        {% endfor %}
+    </p>
+    {% endfor %}    
+
+    <p></p>
+
+    <button type="submit">Registrame</button>
+</form>
+
+{% endblock content %}
+
+
