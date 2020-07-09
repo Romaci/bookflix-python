@@ -1,4 +1,3 @@
-
 {% load static %}
 
 <html>
@@ -38,53 +37,22 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
 
     </style>
 <body>
-    
-
-{% if request.user.is_active %}
-
-{% include "appBookflix/navbar.html" %}
-
-<h1>Usted ya está logueado</h1>
-
-<ul id="barra">
-    <li>Quiere entrar con otra cuenta? toca el link de LogOut en la barra de ariba</li>
-</ul>
-
-<hr />
-{% else %}
-
-{% include "appBookflix/navbar.html" %}
-
-
-<ul id="libros">
-    <h3>Libros: </h3>
-    {% if libros %}
-    {% for libro in libros %}
-       <li style="display: inline-block;margin-left: 1%;border: 10px;">
-            <div>
-                <a  href="/libro/{{libro.autor}}">{{libro.titulo}}</a> <br>
-                
-                <!---->
-                <img style="max-width:275px; max-height:275px;" src="{{libro.portada.url}}"  alt="Portada" > <br>
-
-                <p>Autor: {{libro.autor}}</p> 
-                
-                <p> Género(s): {%for genero in libro.genders.all %}
-                    | {{genero.nombre}} |
-
+        {% include "appBookflix/navbar.html" %}
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            
+            <p>
+                {{field.label_tag}}
+                {{field}}
+        
+                {%for error in field.errors%}
+                    <p style="color: red;">{{error}} </p>
                 {% endfor %}
-                </p>
-            </div>
-        </li>
-    {% endfor %}
-    {% else %}
-    <p>No hay libros dados de alta disponibles</p>
-    {% endif %}
-
-</ul>
-{% endif %}
-
-
-
-
-
+            </p>
+            {% endfor %}
+            <button type="submit">Save changes</button>
+          </form>
+          <a href="/perfil">volver</a>
+    </body>
+</html>

@@ -19,7 +19,10 @@ class AccountAdmin(UserAdmin):
 
 admin.site.register(Autor)
 admin.site.register(Genero)
+admin.site.register(Editorial)
 admin.site.register(Libro)
 admin.site.register(CreditCards)
+admin.site.register(BookByChapter)
+admin.site.register(Novedad)
 #admin.site.register(Usuario)
 admin.site.register(Account, AccountAdmin)

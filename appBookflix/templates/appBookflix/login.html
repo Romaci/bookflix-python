@@ -1,13 +1,43 @@
-<style>
-    #barra li{
-    display:inline;
-    text-align: initial;
-    font-size: medium;
-}
-button{
-    background-color: aqua;
-}
-</style>
+
+{% load static %}
+
+<html>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" 
+integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+<link rel=stylesheet type="text/css" href="{% static "/css/main.css" %}">
+    <style>
+        #publicaciones{
+            margin: 10;
+            border: 10px;
+            padding:70px;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        #publicaciones li{
+            display: inline;
+            margin-left: 15%;
+            border: 10px;
+        }
+        #libros{
+            margin: 10 10 10 10;
+            border: 10px 10px 10px 10px;
+            padding:70px;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        #libros li{
+            display: inline-block;
+            margin: 10px 10px 10px 10px;
+            border: 10px 10px 10px 10px ;
+        }
+        #libros div p{
+            display: inline-block;
+            margin-left: 1%;
+            border: 10px;
+        }
+
+    </style>
+<body>
 
 {% if request.user.is_active %}
 
@@ -29,8 +59,9 @@ button{
 
 
 <form method="POST">
-    {{ form.as_p }}
     {% csrf_token %}
+    {{ form.as_p }}
+    
     <button type="submit">Login</button>
 </form>
 
@@ -39,6 +70,43 @@ button{
 <a href="/recuperarCuenta">Olvidaste tu Contrasena?</a>
 <hr>
 
+<ul id="publicaciones">
+    <h3>Publicaciones: </h3>
+    {% if publicaciones %}
+    {% for publicacion in publicaciones %}
+        <li style="display: inline-block;margin-left: 1%;border: 10px;">
+            <div>
+                <a href="/publicacion/{{publicacion.title}}">{{publicacion.title}}</a> <br>
+                <iframe   width="460" height="250" src={{publicacion.video}} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> 
+            </div>
+        </li> 
+
+    {% endfor %}
+    {% else %}
+    <p>No hay publicaciones disponibles</p>
+    {% endif %}
+
+</ul>
+
+
+
+<ul id="Trailers">
+    <h3>Trailers: </h3>
+    {% if trailers %}
+    {% for trailer in trailers %}
+        <li style="display: inline-block;margin-left: 1%;border: 10px;">
+            <div>
+                <a href="/publicacion/{{publicacion.title}}">{{trailer.title}}</a> <br>
+                <iframe   width="460" height="250" src={{trailer.video}} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> 
+            </div>
+        </li> 
+
+    {% endfor %}
+    {% else %}
+    <p>No hay publicaciones disponibles</p>
+    {% endif %}
+
+</ul>
 
 <ul id="libros">
     <h3>Libros: </h3>
@@ -51,9 +119,9 @@ button{
                 <!---->
                 <img style="max-width:275px; max-height:275px;" src="{{libro.portada.url}}"  alt="Portada" > <br>
 
-                <p>Autor: {{libro.autor}}</p> 
+                <p>Autor: {{libro.author}}</p> 
                 
-                <p> Género(s): {%for genero in libro.genders.all %}
+                <p> Género(s): {%for genero in libro.generos.all %}
                     | {{genero.nombre}} |
 
                 {% endfor %}
@@ -67,3 +135,9 @@ button{
 
 </ul>
 {% endif %}
+
+
+
+</body>
+    
+</html>

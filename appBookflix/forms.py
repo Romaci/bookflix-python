@@ -46,3 +46,18 @@ class CrearPerfil(ModelForm):
     class Meta: 
         model = Profile
         fields = ('name',)
+
+class MailChange(ModelForm):
+
+    class Meta: 
+        model = Account
+        fields = ('email',)
+
+    def clean_email(self):
+        if self.is_valid():
+            email=self.cleaned_data['email']
+            try:
+                account= Account.objects.exclude(pk=self.instance.pk).get(email=email)
+            except Account.DoesNotExist:
+                return email
+            raise forms.ValidationError("el mail se encuentra en uso" )
