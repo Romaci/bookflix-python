@@ -207,7 +207,7 @@ def crear_perfil(request):
     
     form=CrearPerfil()
     context["profile_creation_form"]=form
-    return render(request, 'appBookflix/crearPerfil.html', context)
+    return render(request, 'appBookflix/crear_perfil.html', context)
 
 
 def perfil_seleccionado(request,id_perfil):
