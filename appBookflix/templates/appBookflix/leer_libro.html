@@ -48,11 +48,12 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                     <p> {{libro.descripcion}} </p>
                     <p> Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
                     
-                    <p> Género(s): {%for genero in libro.generos.all %}
+                    <p> Género(s): {%for genero in libro.genero.all %}
                         | {{genero.nombre}} |
 
                     {% endfor %}
                     </p>
+                    <p> Editorial: {{libro.editorial.name}} </p>
                     
                     <P>Puntuación: {{puntaje}}</P>
                     {% if terminado %}
@@ -156,10 +157,10 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
         {% for coment in comentarios%}
             
             {% if coment.is_a_spoiler %}
-                <p> <a href="/verComentario/{{coment.id}}/libro"> ver</a> : Este comentario tiene spoilers, lealo bajo su propia responsabilidad, si quiere leerlo ente arriba</p>
+                <p> <a href="/vercomentario/{{coment.id}}/libro"> ver</a> : Este comentario tiene spoilers, lealo bajo su propia responsabilidad, si quiere leerlo ente arriba</p>
             {%else %}
 
-                <p> <a href="/verComentario/{{coment.id}}/libro"> ver</a>: {{coment.description |slice:":80" }} (...) </p>
+                <p> <a href="/vercomentario/{{coment.id}}/libro"> ver</a>: {{coment.description |slice:":80" }} (...) </p>
                 <a href="/denunciarComentario/{{coment.id}}/{{libro.isbn}}"> denunciar comentario</a>
             {% endif%}
         

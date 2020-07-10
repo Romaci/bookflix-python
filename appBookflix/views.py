@@ -300,6 +300,151 @@ def cambiar_email(request):
 
 
 
+#COMENTARIOS
+
+
+def verComentario(request, id, deDonde):
+    aux= 0
+    context={}
+    try:
+        comentario= CommentBook.objects.get(id=id)
+        ayuda= comentario.publication
+        aux=1
+    except: pass
+    try:
+        comentario= CommentBookByChapter.objects.get(id=id)
+        ayuda= comentario.publication
+        aux= 2
+    except: pass
+    if aux==1: libro= Libro.objects.get(isbn= ayuda.isbn)
+    else: libro= BookByChapter.objects.get(id= ayuda.id)
+    puedeEditar= 'False'
+    if str(request.session["perfil_ayuda"]) == str(comentario.profile.id):
+        puedeEditar= 'True'
+    if request.POST:
+        form= ComentarioForm(request.POST)
+        if form.is_valid():
+            spoi= form.cleaned_data['spoiler']
+            texto= form.cleaned_data['comentario']
+            comentario.description= texto
+            comentario.is_a_spoiler= spoi
+            comentario.save()
+            if deDonde == 'perfil': return redirect("/vermiscomentarios")
+            elif aux == 1: return redirect("/leer_libro/"+str(libro.isbn))
+            else: return redirect("/libro_capitulo/"+ str(libro.isbn))
+    if deDonde == 'perfil': aux= 3
+    context['form']= ComentarioForm(initial={'spoiler': comentario.is_a_spoiler, 'comentario': comentario.description})
+    context['editar']= puedeEditar
+    context['comentario']= comentario
+    context['aux']= str(aux)
+    context['isbn']= libro.isbn
+    return render(request, "appBookflix/vercomentario.html", context)
+
+
+def borrarcomentario(request,id,isbn,aux):
+    aux2=0
+    try:
+        comentario= CommentBook.objects.get(id=id)
+        comentario.delete()
+        aux2= 1
+    except: pass
+    try:
+        comentario= CommentBookByChapter.objects.get(id=id)
+        comentario.delete()
+        aux2= 2
+    except: pass
+    if aux == '3': return redirect("/vermiscomentarios")
+    if aux2==1: return redirect("/leer_libro/"+str(isbn))
+    else: return redirect("/libro_capitulo/"+ str(isbn))
+
+
+def escribirComentario(request, isbn):
+    aux= 0
+    try:
+        libro= Libro.objects.get(isbn=isbn)
+        aux= 1
+    except: pass
+    try:
+        libro= BookByChapter.objects.get(isbn=isbn)
+        aux= 2 
+    except: pass
+    context={}
+    if request.POST:
+        form= ComentarioForm(request.POST)
+        if form.is_valid():
+            spoi= form.cleaned_data['spoiler']
+            texto= form.cleaned_data['comentario']
+            perfil= Profile.objects.get( id= request.session["perfil_ayuda"])
+            if aux == 1:
+                coment= CommentBook( is_a_spoiler=spoi , description=texto, profile=perfil, publication= libro )
+                coment.save()
+                return redirect("/leer_libro/"+str(isbn))
+            else:
+                coment= CommentBookByChapter( is_a_spoiler=spoi , description=texto, profile=perfil, publication= libro )
+                coment.save()
+                return redirect("/libro_capitulo/"+ str(isbn))
+    form= ComentarioForm(initial={'spoiler': False})
+    context["comentario"] = form 
+    context["queEs"]= aux
+    context["isbn"]= isbn
+    return render(request, "appBookflix/comentar.html", context)
+
+
+def vermiscomentarios(request):
+    context={}
+    deLibro= CommentBook.objects.filter(profile= request.session["perfil_ayuda"])
+    deLibroPorCap= CommentBookByChapter.objects.filter(profile = request.session["perfil_ayuda"])
+    context["deLibro"]= deLibro
+    context["deLibroPorCap"]= deLibroPorCap
+    return render(request, "appBookflix/vermiscomentarios.html", context)
+
+#FIN COMENTARIOS
+
+
+
+def puntuar(request, isbn, tipo, puntos):
+    perfil= Profile.objects.get(id= request.session['perfil_ayuda'])
+    points= puntos
+    if tipo == "completo":
+        libro= Libro.objects.get(isbn=isbn)
+        try:
+            like= Like.objects.get(author=perfil, book=libro)
+            like.points= points
+            like.save()
+        except:
+            like=Like(points=points, book=libro, author=perfil)
+            like.save()
+        return redirect("/leer_libro/"+str(libro.isbn))
+    else:
+        libro= BookByChapter.objects.get(isbn=isbn)
+        try:
+            like= LikeBookByChapter.objects.get(author=perfil, book=libro)
+            like.points= points
+            like.save()
+        except:
+            like= LikeBookByChapter(points=points, book=libro, author=perfil)
+            like.save()
+        return redirect("/libro_capitulo/"+ str(libro.isbn))
+ 
+def misvotos(request):
+    context={}
+    perfil= Profile.objects.get(id= request.session['perfil_ayuda'])
+    deLibro= Like.objects.filter(author= perfil)
+    deLibroPorCap= LikeBookByChapter.objects.filter(author=perfil)
+    context['deLibro']=deLibro
+    context['deLibroPorCap']=deLibroPorCap
+    return render(request, "appBookflix/misvotos.html", context)
+
+def calcularPuntosDeLibro(likes, cantLikes):
+    aux= 0
+    for i in likes:
+        aux= aux + i.points
+    return (aux / cantLikes)
+
+
+
+
+
 def leer_libro(request,isbn):
      context={}
      libro= Libro.objects.get(isbn = isbn)  #Aca recupero el libro por el isbn para no cambiar el template
@@ -323,9 +468,7 @@ def leer_libro(request,isbn):
             context['comenzado']= comenzado
             context['terminado']= True
 
-            ##
-            state = StateOfBook.objects.get(state="finished", profile=perfil, book= libro.id)
-            context['terminado']= True
+        
 
      try:
         estado = StateOfBook.objects.get(state="finished", profile=request.session["perfil_ayuda"])
@@ -373,3 +516,181 @@ def leer_libro(request,isbn):
      except StateOfBook.DoesNotExist:
         context['agregar_futura_lectura'] = True    
      return render(request,"appBookflix/leer_libro.html",context) 
+
+
+#acciones de usuario con los libros
+
+def agregar_futuras_lecturas(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = Libro.objects.get(isbn=isbn)
+    #variable = StateOfBook(state="future_reading",book=libro, profile=perfil)
+    try:
+        variable = StateOfBook.objects.get(book=libro, profile=perfil)
+        variable.state= "future_reading"
+    except StateOfBook.DoesNotExist:
+        variable = StateOfBook(book=libro,profile=perfil,state="future_reading")
+    variable.save()
+    return redirect(to="/leer_libro/"+ str(isbn))
+
+def quitar_futuras_lecturas(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = Libro.objects.get(isbn=isbn)
+    #variable = StateOfBook(state="future_reading",book=libro, profile=perfil)
+    variable = StateOfBook.objects.get(book=libro, profile=perfil)
+    variable.state= "null"
+    variable.save()
+    return redirect(to="/leer_libro/"+ str(isbn))
+
+
+def agregar_futuras_lecturas_libro_cap(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = BookByChapter.objects.get(isbn=isbn)
+    try:
+        variable = StateOfBookByChapter.objects.get(book=libro, profile=perfil)
+        variable.state= "future_reading"
+    except StateOfBookByChapter.DoesNotExist:
+        variable = StateOfBookByChapter(book=libro,profile=perfil,state="future_reading")
+    variable.save()
+    return redirect(to="/libro_capitulo/"+ str(isbn))
+
+
+def quitar_futuras_lecturas_libro_cap(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = BookByChapter.objects.get(isbn=isbn)
+    variable = StateOfBookByChapter.objects.get(book=libro, profile=perfil)
+    variable.state= "null"
+    variable.save()
+    return redirect(to="/libro_capitulo/"+ str(isbn))
+
+def agregar_libro_favoritos(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = Libro.objects.get(isbn=isbn)
+    favorito = LibroFavorito(isbn=isbn, profile=perfil, book=libro)
+    favorito.save()
+    return redirect(to="/leer_libro/"+ str(isbn))
+
+def agregar_libro_cap_favoritos(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = BookByChapter.objects.get(isbn=isbn)
+    favorito = LibroPorCapituloFavorito(isbn=isbn, profile=perfil, book=libro)
+    favorito.save()
+    return redirect(to="/libro_capitulo/"+ str(isbn))
+
+
+def agregar_cap_favoritos(request,isbn,titulo):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = BookByChapter.objects.get(isbn=isbn)
+    capitulo = Chapter.objects.get(book=libro, title=titulo)
+    favorito = CapituloFavorito(profile=perfil, book=libro, titulo_capitulo=titulo, capitulo=capitulo)
+    favorito.save()
+    return redirect(to="/libro_capitulo/"+ str(isbn))
+
+
+def quitar_libro(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    favorito = LibroFavorito.objects.get(isbn=isbn, profile=perfil)
+    favorito.delete()
+    return redirect(to="/leer_libro/"+ str(isbn))
+
+
+def quitar_libro_cap(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    favorito = LibroPorCapituloFavorito.objects.get(isbn=isbn, profile=perfil)
+    favorito.delete()
+    return redirect(to="/libro_capitulo/"+ str(isbn))
+
+
+def quitar_cap_favoritos(request,isbn,titulo):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = BookByChapter.objects.get(isbn=isbn)
+    capitulo = Chapter.objects.get(book=libro, title=titulo)
+    favorito = CapituloFavorito.objects.get(profile=perfil, book=libro, titulo_capitulo=titulo, capitulo=capitulo)
+    favorito.delete()
+    return redirect(to="/libro_capitulo/"+ str(isbn))
+
+
+
+def listar_favoritos(request):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libros_favoritos = LibroFavorito.objects.filter(profile=perfil)
+    libros_por_capitulo_favoritos = LibroPorCapituloFavorito.objects.filter(profile=perfil)
+    return render(request,"bookflix/listar_favoritos.html", {"libros_favoritos":libros_favoritos, "libros_por_capitulo_favoritos":libros_por_capitulo_favoritos})
+
+def agregar_a_leyendo(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = Libro.objects.get(isbn=isbn)
+    try:
+        variable = StateOfBook.objects.get(book=libro, profile=perfil)
+        variable.state= "reading"
+    except StateOfBook.DoesNotExist:
+        variable = StateOfBook(state="reading",book=libro, profile=perfil)
+    variable.save()
+    return redirect(to="/leer_libro/"+ str(isbn))
+
+def agregar_a_leyendo_libro_cap(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = BookByChapter.objects.get(isbn=isbn)
+    try:
+        variable = StateOfBookByChapter.objects.get(book=libro, profile=perfil)
+        variable.state= "reading"
+    except StateOfBookByChapter.DoesNotExist:
+        variable = StateOfBookByChapter(state="reading",book=libro, profile=perfil)
+    variable.save()
+    return redirect(to="/libro_capitulo/"+ str(isbn))
+
+
+def quitar_de_leyendo(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = Libro.objects.get(isbn=isbn)
+    variable = StateOfBook.objects.get(book=libro, profile=perfil)
+    variable.state= "null"
+    variable.save()
+    return redirect(to="/leer_libro/"+ str(isbn))
+
+
+def quitar_de_leyendo_libro_cap(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = BookByChapter.objects.get(isbn=isbn)
+    variable = StateOfBookByChapter.objects.get(book=libro, profile=perfil)
+    variable.state= "null"
+    variable.save()
+    return redirect(to="/libro_capitulo/"+ str(isbn))
+
+
+
+def terminar_libro(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = Libro.objects.get(isbn=isbn)
+    variable = StateOfBook.objects.get(book=libro, profile=perfil)
+    variable.state="finished"
+    variable.save()
+    return redirect(to="/leer_libro/"+ str(isbn))
+
+def terminar_libro_cap(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = BookByChapter.objects.get(isbn=isbn)
+    variable = StateOfBookByChapter.objects.get(book=libro, profile=perfil)
+    variable.state="finished"
+    variable.save()
+    return redirect(to="/libro_capitulo/"+ str(isbn))
+
+#Esta función se puede obviar porque agregar a leyendo hace lo mismo que se necesita, pero la dejo por si en un futuro se marean
+def quitar_terminado(request,isbn):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libro = Libro.objects.get(isbn=isbn)
+    variable = StateOfBook.objects.get(book=libro, profile=perfil)
+    variable.state= "reading"
+    variable.save()
+    return redirect(to="/leer_libro/"+ str(isbn))
+
+
+
+
+def libro_cap_por_leer(request,isbn):
+    libro = BookByChapter.object.get(isbn=isbn)
+    perfil = Profile.object.get(id=request.session["perfil_ayuda"])
+    variable = StateOfBookByChapter(state="reading",book=libro, profile=perfil)
+    return render(request,"bookflix/libro_por_leer.html", {"libro":libro} )
+     
+
+

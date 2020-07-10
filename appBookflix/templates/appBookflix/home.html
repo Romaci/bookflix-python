@@ -60,7 +60,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                 <br> <img style="max-width:150px; max-height:150px;" src="{{libro.portada.url}}"  alt="fondo" >
                 <br>  <a> Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} </a>
                 <br>
-                Género(s): {%for genero in libro.generos.all %}
+                Género(s): {%for genero in libro.genero.all %}
                             | {{genero.nombre}} |
         
                         {% endfor %}
@@ -70,10 +70,10 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
             <h3>Recomendaciones personalizadas de Libros Por Capitulo</h3>
             <div>{%for libro in recomendacionCapitulo%}<li>
                 <a href="/libro_capitulo/{{libro.isbn}}">  {{libro.title}} </a> 
-                <br> <img style="max-width:150px; max-height:150px;" src="{{libro.portada.url}}"  alt="fondo" >
-                <br>  <a> Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} </a>
+                <br> <img style="max-width:150px; max-height:150px;" src="{{libro.image.url}}"  alt="fondo" >
+                <br>  <a> Autor(a): {{libro.author.nombre}}, {{libro.author.apellido}} </a>
                 <br>
-                Género(s): {%for genero in libro.genero.all %}
+                Género(s): {%for genero in libro.genders.all %}
                             | {{genero.nombre}} |
                 <br> <a>Editorial: {{libro.editorial}}</a>
                         {% endfor %}
@@ -93,7 +93,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                     <br> 
                     <p> Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
                     <br>
-                    <p> Género(s): {%for genero in libro.generos.all %}
+                    <p> Género(s): {%for genero in libro.genero.all %}
                         | {{genero.nombre}} |
                     {% endfor %}
                     </p>
@@ -108,7 +108,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                         <br> 
                         <p> Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
                         <br>
-                        <p> Género(s): {%for genero in libro.generos.all %}
+                        <p> Género(s): {%for genero in libro.genero.all %}
                             | {{genero.nombre}} |
                         {% endfor %}
                         </p>
@@ -123,7 +123,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                         <br> 
                         <p> Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
                         <br>
-                        <p> Género(s): {%for genero in libro.generos.all %}
+                        <p> Género(s): {%for genero in libro.genero.all %}
                             | {{genero.nombre}} |
                         {% endfor %}
                         </p>
@@ -137,7 +137,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                         <br> 
                         <p> Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
                         <br>
-                        <p> Género(s): {%for genero in libro.generos.all %}
+                        <p> Género(s): {%for genero in libro.genero.all %}
                             | {{genero.nombre}} |
 
                         {% endfor %}
@@ -203,7 +203,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                         <br> 
                         <p> Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
                         
-                        <p> Género(s): {%for genero in libro.generos.all %}
+                        <p> Género(s): {%for genero in libro.genero.all %}
                             | {{genero.nombre}} |
                         {% endfor %}
                         </p>
@@ -217,7 +217,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                         <br> 
                         <p> Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
                         
-                        Género(s): {%for genero in libro.generos.all %}
+                        Género(s): {%for genero in libro.genero.all %}
                             | {{genero.nombre}} |
 
                         {% endfor %}

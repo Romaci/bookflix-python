@@ -61,3 +61,13 @@ class MailChange(ModelForm):
             except Account.DoesNotExist:
                 return email
             raise forms.ValidationError("el mail se encuentra en uso" )
+
+class ComentarioForm(forms.Form):
+    comentario= forms.CharField( max_length= 300, widget=forms.Textarea)
+    spoiler= forms.BooleanField(required=False)
+
+
+class BuscarForm(forms.Form):
+    buscar= forms.CharField(max_length=100)
+
+
