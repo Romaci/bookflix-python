@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
  
     #MIS APPS
-    
+    'bootstrap4',
     'appBookflix', #agrego la carpeta en la que voy a trabajar. ESTA LA AGREGUÉ YO. 
     
 ]
