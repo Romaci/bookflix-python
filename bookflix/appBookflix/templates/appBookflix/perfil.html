@@ -1,0 +1,101 @@
+{% load static %}
+
+<html>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" 
+integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+<link rel=stylesheet type="text/css" href="{% static "/css/main.css" %}">
+    <style>
+        #publicaciones{
+            margin: 10;
+            border: 10px;
+            padding:70px;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        #publicaciones li{
+            display: inline;
+            margin-left: 15%;
+            border: 10px;
+        }
+        #libros{
+            margin: 10 10 10 10;
+            border: 10px 10px 10px 10px;
+            padding:70px;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        #libros li{
+            display: inline-block;
+            margin: 10px 10px 10px 10px;
+            border: 10px 10px 10px 10px ;
+        }
+        #libros div p{
+            display: inline-block;
+            margin-left: 1%;
+            border: 10px;
+        }
+
+    </style>
+<body>
+        
+        {% include "appBookflix/navbar.html" %}
+
+        <h1>
+          Perfil de {{request.user.username}} 
+        </h1>
+        <ul>
+            <li style="text-emphasis-color: black;">Email: {{request.user.email}}  
+                <a href="/cambiar_email">Cambiar Dirección de mail</a>
+            </li>
+            <li style="text-emphasis-color: black;">Plan: {{request.user.plan}}</li>
+            <li style="text-emphasis-color: black;">Fecha de inicio de adhesión al plan: {{request.user.date_start_plan}}</li>
+            {% if request.user.plan != "free" %}
+                <li style="text-emphasis-color: black;">Tiempo Pagado: {{request.user.time_pay}}  dias</li>
+                <li style="text-emphasis-color: black;">Tiempo restante hasta vencimiento: {{request.user.tiempo_restante}}  dias</li>
+            {% endif %}    
+            <li style="text-emphasis-color: black; text-transform: capitalize;">Su número de tarjeta es: ***{{numeroPa}} </li>
+       
+        </ul>
+        
+        <p>
+        <ul>
+            <li>
+                <a href="/borrar_cuenta">Borrar Cuenta</a>
+            </li>
+        </p>
+            <li>
+                <a href="/cambiar_tarjeta">Cambiar Tarjeta Bancaria</a>
+            </li>
+        </p>
+        <p>
+            <li>
+                <a href="/cambiar_contrasenia">Cambiar Contraseña</a>  
+            </li>
+           
+        </p>
+        <p>
+            <li>
+                <a href="/solicitar_cambio"> Cambiar Plan</a>
+            </li>
+        </p>
+        <p>
+            <li>
+                <a href="/vermiscomentarios"> ver mis comentarios </a>
+            </li>
+        </p>
+        <p>
+            <li>
+                <a href="/misvotos"> ver mis puntuaciones </a>
+            </li>
+        </p>
+        <p>
+            <li>
+                <a href="/listar_favoritos">Listar mis libros favoritos</a>
+            </li>
+        </p>
+        
+    </body>
+
+
+
+</html>
