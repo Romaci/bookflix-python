@@ -1,0 +1,27 @@
+<html>
+    
+    <body>
+        
+        <h2>Ingresar Código </h2>
+        <form method="post">
+            
+            {% csrf_token %}
+            {%for field in confirmacion %}
+                {{field.label_tag}}
+                {{field}}
+            {% endfor %}
+
+            {%for error in confirmacion.errors %}
+                <p style="color: black", > {{error}} </p>
+            {% endfor %}
+            
+            {% if confirmacion.non_field_errors %}
+                <div style="color:yellow">
+                    <p>{{cambio_mail.non_field_errors}} </p>
+                </div>
+            {% endif %}
+            <button type="submit">Guardar cambios</button>
+          </form>
+        
+    </body>
+</html>

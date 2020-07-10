@@ -1,0 +1,25 @@
+cada vez que hago un cambio en el la base de datos, tipo agregar un modelo, modificar un modelo, etc. hago todo la migracion en la consola
+
+(bookflixApp) C:\Users\TatiFio\Documents\bookflix\bookflix>python manage.py startapp appBookflix
+
+
+(bookflixApp) C:\Users\TatiFio\Documents\bookflix\bookflix>python manage.py makemigrations appBookflix
+No changes detected in app 'appBookflix'
+
+(bookflixApp) C:\Users\TatiFio\Documents\bookflix\bookflix>python manage.py migrate
+
+
+Elimino my dbdlite y hag todo esto de arriba y me la vuelve a crear (para evitar inconsistencias)
+
+(bookflixApp) C:\Users\TatiFio\Documents\bookflix\bookflix>python manage.py runserver
+
+http://127.0.0.1:8000/
+
+
+PARA CREAR UN SUPER USER TENGO QUE PONER (antes del hacer run server, lo tengo que hacer cada vez que borro la bd por ejemplo, porque se borra el super usuario)
+
+(bookflixApp) C:\Users\TatiFio\Documents\bookflix\bookflix>python manage.py createsuperuser 
+
+
+
+
