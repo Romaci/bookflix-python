@@ -84,7 +84,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
         <h2>Libros para leer</h2>
         {% for libro in libros %}
         <li >
-                {% if request.user.plan == "free"  %}
+                {% if request.user.plan == "free"   %}
                 <div>
                     <a href="/leer_libro/{{libro.isbn}}">  {{libro.titulo}} </a> 
                     <br>
