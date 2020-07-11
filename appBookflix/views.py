@@ -693,4 +693,11 @@ def libro_cap_por_leer(request,isbn):
     return render(request,"bookflix/libro_por_leer.html", {"libro":libro} )
      
 
+def historial(request):
+     historial_libros = StateOfBook.objects.filter(state="finished")
+     historial_libros_cap = StateOfBookByChapter.objects.filter(state="finished")
+     #historial = historial_libros_cap |= historial_libros
+     sesion = request.session
+     return render(request,"appBookflix/historial.html",{"historial_libros":historial_libros,"historial_libros_cap":historial_libros_cap, "sesion":sesion }) 
+
 

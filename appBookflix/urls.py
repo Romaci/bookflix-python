@@ -43,6 +43,7 @@ urlpatterns = [
     path('misvotos/', misvotos, name="misvotos"),
     path('vercomentario/<id>/<deDonde>', verComentario, name="vercomentario"),
     path('comentar/<isbn>/', escribirComentario, name="escribirComentario"),
+    path("historial/", historial, name="historial"),
 
 ]   + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
