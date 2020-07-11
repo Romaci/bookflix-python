@@ -183,7 +183,7 @@ def logout(request):
     # Finalizamos la sesión
     do_logout(request)
     # Redireccionamos al login
-    return redirect('/login')
+    return redirect('/')
 
 
 
