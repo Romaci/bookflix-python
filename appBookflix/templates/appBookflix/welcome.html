@@ -4,58 +4,118 @@
 {% bootstrap_javascript jquery='full' %}
 
 <html>
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" 
-integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-<link rel=stylesheet type="text/css" href="{% static "/css/main.css" %}">
-    <style>
-        #publicaciones{
-            margin: 10;
-            border: 10px;
-            padding:70px;
-            list-style: none;
-            text-transform: uppercase;
-        }
-        #publicaciones li{
-            display: inline;
-            margin-left: 15%;
-            border: 10px;
-        }
-        #libros{
-            margin: 10 10 10 10;
-            border: 10px 10px 10px 10px;
-            padding:70px;
-            list-style: none;
-            text-transform: uppercase;
-        }
-        #libros li{
-            display: inline-block;
-            margin: 10px 10px 10px 10px;
-            border: 10px 10px 10px 10px ;
-        }
-        #libros div p{
-            display: inline-block;
-            margin-left: 1%;
-            border: 10px;
-        }
-
-    </style>
 <body>
-    
-
-{% if request.user.is_active %}
-
 {% include "appBookflix/navbar.html" %}
 
-<h1>Usted ya está logueado</h1>
 
-<ul id="barra">
-    <li>Quiere entrar con otra cuenta? toca el link de LogOut en la barra de ariba</li>
-</ul>
+<!--
+----- Acerca de la App ------
+-titulo-
+Miles de libros para leer
+-texto-
+Sé parte de nuestra comunidad y disfrutá de miles de libros digitales en todos tus dispositivos, 
+y de forma ilimitada, con una sola membresía al precio de un libro digital.
+-boton-
+proba nuestra membresía de manera gratuita
+------------------------------
+--->
+<div style="background-image: url('static/images/reading.jpg'); background-repeat: no-repeat;
+background-attachment: fixed;
+background-size: cover; height: 500px;">
+    <div class="container-fluid">
+        <div class="row" style="height: 400px; align-items: center; padding: 50px; color: white;">
+            <div class="col-7"></div>
+            <div class="col-5">
+                <div class="row">
+                    <h1>Miles de libros para leer</h1>
+                </div>
+                <div class="row">
+                    <h5>Sé parte de nuestra comunidad y disfrutá de miles de libros digitales en todos tus dispositivos, 
+                        y de forma ilimitada, con una sola membresía al precio de un libro digital.</h5>
+                </div>
+                <div class="row" style="padding-top: 30px;">
+                    <a class="btn btn-light btn-lg" href="/register_page">Probá nuestra membresía de manera gratuita</a> 
+                </div>
+            </div>
+          </div>
+    </div>
+</div>
 
-<hr />
-{% else %}
+<!--
+----- Catalogo -----
+-texto-
+Miles de clásicos, bestsellers y novedades para leer. 
+-boton-
+Acceder Catalogo
+-->
+<div class="container fluid"  style="height: 500px; padding: 50px 0px 50px 0px;" >
+    <div class="row" style="height: 400px; align-items: center; padding: 50px;">
+        <div class="col 5">
+            <div class="row">
+                <h1> Contamos con todos los clásicos, bestsellers y novedades para leer. </h1>
+            </div>
+            <div class="row" style="padding-top: 30px;">
+                <a class="btn btn-light btn-lg" href="#">Ver Catálogo</a> 
+            </div>
+        </div>
+        <div class="col 8" >
+            <img src={% static '/images/cat.jpg' %} alt="logo" width="" height="500px" style="object-fit: cover; object-position: center center;">
+        </div> 
+    </div>
+</div>
 
-{% include "appBookflix/navbar.html" %}
+<!--
+----- PLANES -------
+-imagen-
+2 tipitos | 4 tipitos
+-titulo-
+Plan Base
+-subtitulo-
+hasta dos perfiles | hasta cuatro perfiles
+-boton-
+Mas informacion acerca de nuestros planes
+--->
+<div class="container fluid"  style="height: 500px; padding: 50px 0px 50px 0px; align-items: center;" >
+    <div class="row" style="height: 400px; align-items: center; padding: 50px;">
+        <div class="col 6">
+            <div class="row">
+                <img src={% static '/images/per1.png' %} alt="logo" width="" height="">
+            </div>
+            <div class="row">
+                <h2></h2>
+            </div>
+            <div class="row">
+                <h4></h4>
+            </div>
+        </div>
+        <div class="col 6">
+            <div class="row">
+                <img>
+            </div>
+            <div class="row">
+                <h2></h2>
+            </div>
+            <div class="row">
+                <h4></h4>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="padding-top: 30px; align-items: center !important;">
+        <a class="btn btn-light btn-lg" href="#">Más información acerca de nuestros planes</a> 
+    </div>
+</div>
+</body>
+
+
+
+<!--
+----- PIE -----
+BOOKFLIX ©
+--->
+
+
+
+<!-- <div>
 
 
 <ul id="libros">
@@ -66,7 +126,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
             <div>
                 <a  href="/libro/{{libro.autor}}">{{libro.titulo}}</a> <br>
                 
-                <!---->
+                
                 <img style="max-width:275px; max-height:275px;" src="{{libro.portada.url}}"  alt="Portada" > <br>
 
                 <p>Autor: {{libro.autor}}</p> 
@@ -84,8 +144,8 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
     {% endif %}
 
 </ul>
-{% endif %}
 
+</div> -->
 
 
 
