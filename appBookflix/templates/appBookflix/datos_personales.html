@@ -1,0 +1,31 @@
+{% extends 'appBookflix/perfil.html' %}
+
+{% block content %}
+    <div style="margin-top: 50px;">
+        <table class="table table-striped">
+            <tbody>
+              <tr>
+                <th scope="row"> Nombre de Usuario</th>
+                <td>{{request.user.username}}</td>
+                <td></td>
+
+              </tr>
+              <tr>
+                <th scope="row">Email</th>
+                <td>{{request.user.email}}</td>
+                <td><a href="/cambiar_email">Cambiar Dirección de mail</a></td>
+
+              </tr>
+              <tr>
+                <th scope="row">Plan</th>
+                <td>{{request.user.plan}}</td>
+                <td><a href="/solicitar_cambio">Solicitud Cambio de Plan</a></td>
+              </tr>
+              <tr>
+                <th scope="row">Contraseña</th>
+                <td>*****</td>
+                <td><a href="/cambiar_contrasenia">Cambiar Contraseña</a></td>
+              </tr>
+            </tbody>
+    </div>
+{% endblock %}

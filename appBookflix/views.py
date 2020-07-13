@@ -136,6 +136,11 @@ def select_perfil(request):
     perfiles = Profile.objects.filter(account = request.user)
     return render(request, "appBookflix/select_perfil.html", {'perfiles': perfiles,}) #"tarjetaActual": tarjetaActual, "perfilActual":perfilActual})
 
+def datos_personales(request):
+    perfiles = Profile.objects.filter(account = request.user)
+
+    return render(request, "appBookflix/datos_personales.html", {'perfiles': perfiles,})
+
 
 def login_propio(request):
     # Creamos el formulario de autenticación vacío
