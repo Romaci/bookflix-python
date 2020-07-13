@@ -137,9 +137,12 @@ def select_perfil(request):
     return render(request, "appBookflix/select_perfil.html", {'perfiles': perfiles,}) #"tarjetaActual": tarjetaActual, "perfilActual":perfilActual})
 
 def datos_personales(request):
+    context = {} 
     perfiles = Profile.objects.filter(account = request.user)
-
-    return render(request, "appBookflix/datos_personales.html", {'perfiles': perfiles,})
+    t= CreditCards.objects.get(user= request.user)
+    context["tarjeta"]=t
+    context["perfiles"]=perfiles
+    return render(request, "appBookflix/datos_personales.html", context)
 
 
 def login_propio(request):
@@ -301,8 +304,6 @@ def cambiar_email(request):
         )
     context["cambio_mail"]= form 
     return render(request, "appBookflix/cambiar_email.html", context)
-
-
 
 
 #COMENTARIOS
