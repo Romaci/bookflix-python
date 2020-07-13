@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.core.exceptions import FieldError, ValidationError
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils import timezone
 from creditcards.models import CardNumberField, CardExpiryField, SecurityCodeField
 
@@ -80,6 +80,13 @@ class Account(AbstractBaseUser):
 
     def nombre(self):
         return self.username
+
+    def tiempo_restante(self):
+        tiempo_pagado = timedelta(days=self.time_pay)
+        fecha_limite = tiempo_pagado + self.date_start_plan
+        dias_restantes = fecha_limite - datetime.now().date()
+        return dias_restantes.days
+
 
     def has_perm (self, perm, obj=None): #ESTO SIGNIFICA QUE SI ES ADMIN VA A PODER HACER CAMBIOS EN LA DB
         return self.is_admin

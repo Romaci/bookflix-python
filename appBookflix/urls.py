@@ -54,6 +54,7 @@ urlpatterns = [
     path('solicitudes/', solicitudes, name='solicitudes'),
     path('solicitar_cambio/', solicitar_cambio, name='solicitar_cambio'),
     path("aceptarSolicitud/<idSol>/<num>/", aceptarSolicitud, name="aceptarSolicitud"),
+    path("buscar/",buscar, name="buscar"),
 
 ]   + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

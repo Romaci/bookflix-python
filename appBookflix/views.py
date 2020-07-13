@@ -841,6 +841,120 @@ def aceptarSolicitud(request,idSol,num):
     return redirect('/solicitudes')   
 
 
+#BUSCAR
+
+def buscar(request):
+    context={ }
+    if request.POST:
+        form= BuscarForm(request.POST)
+        if form.is_valid():
+
+            def buscar_por_autor(query):
+                autores = Autor.objects.filter(nombre__icontains=query)
+                autores2 = Autor.objects.filter(apellido__icontains=query)
+                result = []
+                for autor in autores:
+                    result = result + list(Libro.objects.filter(autor=autor, mostrar_en_home=True))
+                for autor in autores2:
+                    result = result + list(Libro.objects.filter(autor=autor, mostrar_en_home=True))
+                return result
+
+            def buscar_por_genero(query):
+                generos = Genero.objects.filter(nombre__icontains=query)
+                result = []
+                for genero in generos:
+                    result = result + list(Libro.objects.filter(genero=genero, mostrar_en_home=True))
+                return result
+
+            def buscar_por_editorial(query):
+                editoriales = Editorial.objects.filter(name__icontains=query)
+                result = []
+                for editorial in editoriales:
+                    result = result + list(Libro.objects.filter(editorial=editorial, mostrar_en_home=True))
+                return result
+
+            def buscar_por_titulo(query):
+                result = Libro.objects.filter(titulo__icontains=query)
+                return result
+
+
+            def buscar_por_autorCap(query):
+                autores = Autor.objects.filter(nombre__icontains=query)
+                autores2 = Autor.objects.filter(apellido__icontains=query)
+                result = []
+                for autor in autores:
+                    result = result + list(BookByChapter.objects.filter(autor=autor, mostrar_en_home=True))
+                for autor in autores2:
+                    result = result + list(BookByChapter.objects.filter(autor=autor, mostrar_en_home=True))
+                return result
+
+            def buscar_por_generoCap(query):
+                generos = Genero.objects.filter(nombre__icontains=query)
+                result = []
+                for genero in generos:
+                    result = result + list(BookByChapter.objects.filter(genders=genero, mostrar_en_home=True))
+                return result
+
+            def buscar_por_editorialCap(query):
+                editoriales = Editorial.objects.filter(name__icontains=query)
+                result = []
+                for editorial in editoriales:
+                    result = result + list(BookByChapter.objects.filter(editorial=editorial, mostrar_en_home=True))
+                return result
+
+            def buscar_por_tituloCap(query):
+                result = BookByChapter.objects.filter(title__icontains=query, mostrar_en_home=True)
+                return result
+
+            def buscar_por_isbn(query):
+                result = Libro.objects.filter(isbn=query, mostrar_en_home=True)
+                return result
+
+            def buscar_por_isbnCap(query):
+                result = BookByChapter.objects.filter(isbn=query, mostrar_en_home=True)
+                return result
+
+            palabra= form.cleaned_data['buscar']
+            query= str(palabra).split(' ')
+            allBook = Libro.objects.filter(mostrar_en_home = True)
+            AllBookCap= BookByChapter.objects.filter(mostrar_en_home = True)
+            results=set()
+            resultsCap=set()
+            for palabra in query:
+
+                #if buscar_por_autor(palabra):
+                resultsAutor = set(allBook) & set(buscar_por_autor(palabra))
+                #if buscar_por_genero(palabra):
+                resultsGenero =  set(allBook)  & set(buscar_por_genero(palabra))
+                #if buscar_por_titulo(palabra):
+                resultsTitulo =  set(allBook)  & set(buscar_por_titulo(palabra))
+                #if buscar_por_editorial(palabra):                    
+                resultsEditorial = set(allBook)  & set(buscar_por_editorial(palabra))
+                resultsIsbn= set(allBook) & set(buscar_por_isbn(palabra))
+                results= results | (resultsAutor | resultsGenero | resultsTitulo | resultsEditorial | resultsIsbn)
+
+                #if buscar_por_autorCap(palabra):
+                resultsAutor = set(AllBookCap) & set(buscar_por_autorCap(palabra))
+                #if buscar_por_generoCap(palabra):
+                resultsGenero = set(AllBookCap) & set(buscar_por_generoCap(palabra))
+                #if buscar_por_tituloCap(palabra):
+                resultsTitulo = set(AllBookCap) & set(buscar_por_tituloCap(palabra))
+                #if buscar_por_editorialCap(palabra):
+                resultsEditorial = set(AllBookCap) & set(buscar_por_editorialCap(palabra))
+                resultsIsbn= set(AllBookCap) & set(buscar_por_isbnCap(palabra))
+                resultsCap= resultsCap | (resultsAutor | resultsGenero | resultsTitulo | resultsEditorial | resultsIsbn)
+
+            context['libros']= set(results)
+            context['librosCap']= set(resultsCap) 
+    else:
+        context['libros']= Libro.objects.all()
+        context['librosCap']= BookByChapter.objects.all()
+    form=BuscarForm()
+    context['form']= form
+    return render(request, "appBookflix/buscar.html", context)
+
+
+
 
 #Funciones de automatizacion, escribir cualquier otra view antes que esta
 

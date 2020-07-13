@@ -54,7 +54,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
             {% endif %}
             {% if request.user.plan != "free" %}
                 <li style="text-emphasis-color: black;">Tiempo Pagado: {{request.user.time_pay}}  dias</li>
-                <li style="text-emphasis-color: black;">Tiempo restante hasta vencimiento: {{request.user.tiempo_restante}}  dias</li>
+                <li style="text-emphasis-color: black;">Tiempo restante hasta vencimiento: {{request.user.tiempo_restante}} dias</li>
             {% endif %}    
             <li style="text-emphasis-color: black; text-transform: capitalize;">Su número de tarjeta es: ***{{numeroPa}} </li>
        
