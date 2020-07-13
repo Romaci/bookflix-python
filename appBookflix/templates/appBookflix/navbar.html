@@ -42,9 +42,9 @@
    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
      <span class="navbar-toggler-icon"></span>
    </button>
-   {% if request.user.is_active %}
-   <div class="collapse navbar-collapse" id="navbarNav">
-     <ul class="navbar-nav">
+   {% if not request.user.is_admin  and request.user.is_active %} <!--SI NO ES UN ADMIN, MUESTRA TODO ESTO-->
+    <div class="collapse navbar-collapse" id="navbarNav">
+     
        <li class="nav-item active">
          <a class="nav-link" href="/home ">Home <span class="sr-only">(current)</span></a>
        </li>
@@ -60,32 +60,53 @@
        <li class="nav-item">
          <a class="nav-link" href="/select_perfil">Perfiles</a>
        </li>
-       {% if request.user.is_admin %}
-          <li><a class="nav-link" href="/solicitudes">Solicitudes</a></li>
-       {% else %}
-       <li class="nav-item">
-         <a class="nav-link" href="/solicitar_cambio">Solicitar Cambio</a>
+        <li class="nav-item">
+         <a class="nav-link" href="/solicitar_cambio">Subir mi cuenta de nivel</a>
        </li>
-       {% endif %}
-       <li><a class="nav-link" href="/historial">Historial</a></li>
+        <li><a class="nav-link" href="/historial">Historial de lecturas</a></li>
+       <li><a class="nav-link" href="/favoritos">Libros favoritos</a></li>
        <li><a class="nav-link" href="/logout">Cerrar Sesion</a></li>
-     </ul>
-     <span class="ml-auto" style="font-weight: bold;color: white !important;font-size: 1.5rem;">
+       <span class="ml-auto" style="font-weight: bold;color: white !important;font-size: 1.5rem;">
       ¡Hola {{request.user.username}}!
     </span>
+    {% else %}
+          {% if request.user.is_admin %}
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/publicaciones">Noticias</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/trailers">Trailers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/select_perfil">Perfiles</a>
+            </li>
+            <li><a class="nav-link" href="/solicitudes">Solicitudes</a></li>
+            <li><a class="nav-link" href="/mas_leidos">Libros más leídos</a> </li>   
+            <li><a class="nav-link" href="/logout">Cerrar Sesion</a></li> 
+            <span class="ml-auto" style="font-weight: bold;color: white !important;font-size: 1.5rem;">
+      ¡Hola {{request.user.username}}!
+      
+    </span>
+          {% endif %}
+     
+     
    </div>
-   {% else %}
+   {% endif %}
+
+   {% if not request.user.is_active %}
    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ml-auto">
+      
          <li class="nav-item active"> 
             <a class="nav-link" href="/register_page">Registrarme</a> 
          </li>
          <li class="nav-item">
             <a class="nav-link" href="/login">Login</a>
           </li>
-      </ul>
+      
    </div>
-{% endif %}
+   {% endif %}
+
  </nav>
 
 

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% include "appBookflix/navbar.html" %}
+    {% csrf_token %}
+    <h3>¿Está seguro de querer eliminar su cuenta? No podrá recuperarla</h3>
+    
+    <div style="margin: 15px;">
+        
+        <a href="/borrar_cuenta_definitivo/{{perfil}} ">Borrar cuenta</a>
+        <br>
+        <br>
+        <a href="/perfil/">Volver a la página anterior</a>
+    </div>
+</body>
+</html>

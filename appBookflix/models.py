@@ -94,28 +94,15 @@ class Account(AbstractBaseUser):
 
 
 
-"""
-class Tarjeta(models.Model):
-    cc_number = CardNumberField(('Número de tarjeta'))
-    cc_expiry = CardExpiryField(('Fecha de vencimiento'))
-    cc_code = SecurityCodeField(('Código de seguridad'))
- 
-class Usuario (models.Model):
-    nombre= models.CharField(max_length=50, blank=True, null=True)
-    apellido= models.CharField(max_length=50, blank=True, null=True)
-    password=models.CharField(max_length=20)
-    email= models.EmailField(max_length=254)
-    username= models.CharField(max_length=50)
-    tarjeta=models.OneToOneField(Tarjeta,on_delete=models.CASCADE)
- 
-    def publish(self):         
-        self.save()
-    def __str__(self):         
-        return self.nombre
-    class Meta:
-        verbose_name = "Usuario"
-        verbose_name_plural = "Usuarios"
-"""
+def numerolegal(value):
+    if value == 0:
+        raise ValidationError('un capitulo no puede ser numero cero')
+    elif value < 0 :
+        raise ValidationError('un capitulo no puede tener un numero negativo')
+    else:
+        return value
+
+
 
 
 #CreditCards
@@ -136,6 +123,27 @@ class CreditCards(models.Model):
     class Meta:
         verbose_name = "Tarjeta"
         verbose_name_plural = "Tarjetas"
+
+
+#CreditCardsUsed
+
+class CreditCardsUsed(models.Model):
+    number = CardNumberField('numero')
+    date_expiration= CardExpiryField('fecha de vencimiento')
+    cod = SecurityCodeField('codigo de seguridad')
+    card_name = models.CharField("nombre de tarjeta",max_length=50)
+    bank = models.CharField(('banco'),max_length=50)
+
+    def publish(self):
+        self.save()
+
+    def __str__(self):
+        return str(self.number)
+
+    class Meta:
+        verbose_name = "Tarjeta Usada"
+        verbose_name_plural = "Tarjetas Usadas"
+
  
 
 #AUTOR 
@@ -274,6 +282,11 @@ class Profile(models.Model):
         unique_together= ('name', 'account')
 
 
+
+
+    
+
+
 "-------BookByChapter-------"
 class BookByChapter(models.Model):
     isbn = models.CharField( max_length=16, unique=True, validators =[validateIsbnPorCapitulo, validateIsbnNum], )
@@ -308,7 +321,42 @@ class BookByChapter(models.Model):
 
     def __str__(self):
         return self.title
-    
+
+
+
+"-------Chapter-------"
+class Chapter(models.Model):    
+    book= models.ForeignKey(BookByChapter, on_delete=models.CASCADE, verbose_name="libro",) # validators=[libroLleno])
+    title= models.CharField(("Titulo del capítulo"), max_length=50, help_text="Ingrese el nombre del capítulo, en caso de no tenerlo, su numero de cap, esta información se mostrará al usuario")
+    number = models.IntegerField(("numero de capitulo"), validators=[numerolegal], help_text="este dato es solo para ordenar las busquedas internas, sepa que si un libro tiene dos capitulos y aquí pone 10 (en vez de 1) , no afectara al libro, pero en el orden se mostrara al final")
+    description = models.TextField(("Descripción del capítulo"), blank=True, null=True)
+    pdf = models.FileField(upload_to='pdf')
+    active = models.BooleanField(("Activado"), default=False)
+
+    class Meta:
+        unique_together = ('number', 'book',)
+        verbose_name = "Capítulo"
+        verbose_name_plural = "Capítulos"
+
+    def clean(self):
+        b= BookByChapter.objects.get(id = self.book.id)
+        b2= Chapter.objects.exclude(id= self.id).filter(book=self.book).count()
+        if self.number > int(b.cant_chapter):
+            raise ValidationError('no puede usar este numero para el capitulo')
+        if b2 == b.cant_chapter:
+            raise ValidationError('El libro no puede contener mas capítulos')
+        if Chapter.objects.exclude(id=self.id).filter(book= self.book, number=self.number).exists():
+            raise ValidationError('Ese numero de capítulo ya fue usado por ese capítulo')
+
+    def publish(self):
+        self.save()
+        
+
+    def __str__(self):
+       
+        return ' Libro: %s . Capitulo titulado: %s y es el capitulo numero: %s' % (self.book, self.title, self.number)
+
+
 
 
 
@@ -351,6 +399,65 @@ class LibroPorCapituloFavorito(models.Model):
 
     def __str__(self):
         return self.isbn
+
+
+
+"-------Chapter-------"
+class Chapter(models.Model):    
+    book= models.ForeignKey(BookByChapter, on_delete=models.CASCADE, verbose_name="libro",) # validators=[libroLleno])
+    title= models.CharField(("Titulo del capítulo"), max_length=50, help_text="Ingrese el nombre del capítulo, en caso de no tenerlo, su numero de cap, esta información se mostrará al usuario")
+    number = models.IntegerField(("numero de capitulo"), validators=[numerolegal], help_text="este dato es solo para ordenar las busquedas internas, sepa que si un libro tiene dos capitulos y aquí pone 10 (en vez de 1) , no afectara al libro, pero en el orden se mostrara al final")
+    description = models.TextField(("Descripción del capítulo"), blank=True, null=True)
+    pdf = models.FileField(upload_to='pdf')
+    active = models.BooleanField(("Activado"), default=False)
+
+    class Meta:
+        unique_together = ('number', 'book',)
+        verbose_name = "Capítulo"
+        verbose_name_plural = "Capítulos"
+
+    def clean(self):
+        b= BookByChapter.objects.get(id = self.book.id)
+        b2= Chapter.objects.exclude(id= self.id).filter(book=self.book).count()
+        if self.number > int(b.cant_chapter):
+            raise ValidationError('no puede usar este numero para el capitulo')
+        if b2 == b.cant_chapter:
+            raise ValidationError('El libro no puede contener mas capítulos')
+        if Chapter.objects.exclude(id=self.id).filter(book= self.book, number=self.number).exists():
+            raise ValidationError('Ese numero de capítulo ya fue usado por ese capítulo')
+
+    def publish(self):
+        self.save()
+        
+
+    def __str__(self):
+       
+        return ' Libro: %s . Capitulo titulado: %s y es el capitulo numero: %s' % (self.book, self.title, self.number)
+
+
+
+"-------Capítulo Favorito-------"
+class CapituloFavorito(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="perfil",blank=True, null=True)
+    book = models.ForeignKey(BookByChapter, on_delete=models.CASCADE, verbose_name="libro",blank=True, null=True)
+    titulo_capitulo = models.CharField(('titulo'), max_length=50)
+    capitulo = models.ForeignKey(Chapter, on_delete=models.CASCADE)
+
+    def publish(self):
+        self.save()
+
+    def id(self):
+        return self.id
+
+    class Meta:
+        verbose_name = "Capitulo Leyéndose"
+        verbose_name_plural = "Capitulos Leyéndose"
+
+    def __str__(self):
+        return self.titulo_capitulo + "⠀del libro:⠀" +self.book.title 
+
+
+
 
 
 "-------Noticias-------"
@@ -401,45 +508,8 @@ class Trailer(models.Model):
             raise ValidationError("Debe adjuntar UN libro O UN libro por capitulo")
     
 
-def numerolegal(value):
-    if value == 0:
-        raise ValidationError('un capitulo no puede ser numero cero')
-    elif value < 0 :
-        raise ValidationError('un capitulo no puede tener un numero negativo')
-    else:
-        return value
 
-"-------Chapter-------"
-class Chapter(models.Model):    
-    book= models.ForeignKey(BookByChapter, on_delete=models.CASCADE, verbose_name="libro",) # validators=[libroLleno])
-    title= models.CharField(("Titulo del capítulo"), max_length=50, help_text="Ingrese el nombre del capítulo, en caso de no tenerlo, su numero de cap, esta información se mostrará al usuario")
-    number = models.IntegerField(("numero de capitulo"), validators=[numerolegal], help_text="este dato es solo para ordenar las busquedas internas, sepa que si un libro tiene dos capitulos y aquí pone 10 (en vez de 1) , no afectara al libro, pero en el orden se mostrara al final")
-    description = models.TextField(("Descripción del capítulo"), blank=True, null=True)
-    pdf = models.FileField(upload_to='pdf')
-    active = models.BooleanField(("Activado"), default=False)
 
-    class Meta:
-        unique_together = ('number', 'book',)
-        verbose_name = "Capítulo"
-        verbose_name_plural = "Capítulos"
-
-    def clean(self):
-        b= BookByChapter.objects.get(id = self.book.id)
-        b2= Chapter.objects.exclude(id= self.id).filter(book=self.book).count()
-        if self.number > int(b.cant_chapter):
-            raise ValidationError('no puede usar este numero para el capitulo')
-        if b2 == b.cant_chapter:
-            raise ValidationError('El libro no puede contener mas capítulos')
-        if Chapter.objects.exclude(id=self.id).filter(book= self.book, number=self.number).exists():
-            raise ValidationError('Ese numero de capítulo ya fue usado por ese capítulo')
-
-    def publish(self):
-        self.save()
-        
-
-    def __str__(self):
-       
-        return ' Libro: %s . Capitulo titulado: %s y es el capitulo numero: %s' % (self.book, self.title, self.number)
 
 #StateOfBook
 

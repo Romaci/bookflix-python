@@ -71,3 +71,17 @@ class BuscarForm(forms.Form):
     buscar= forms.CharField(max_length=100)
 
 
+
+class SolicitudFormAdmin(ModelForm):
+    class Meta:
+        model = UserSolicitud
+        exclude = ['id', ]
+
+
+
+class ChapForm(ModelForm):
+    class Meta:
+        model = Chapter
+        exclude = ['id', ]
+
+
