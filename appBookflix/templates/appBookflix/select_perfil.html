@@ -1,5 +1,4 @@
 <html>
-
 <body>
     {% if request.user.is_active %}
         {% include "appBookflix/navbar.html" %}
@@ -8,16 +7,13 @@
             {% if perfiles|length > 0 %}
                 Seleccione cual Perfil quiere utilizar de su cuenta
                 {% for perfil in perfiles %} 
-
                     <p>
                         <a style="margin: 10;" href="/perfil_seleccionado/{{perfil.id}}">{{perfil.name}}</a>  
                         <a style="font-size: 15px; margin-left: 15px;" href="/cambiar_nombre/{{perfil.name}}">Cambiar Nombre</a>
                         <a style="font-size: 12px; margin: 15px;" href="/borrar_perfil/{{perfil.name}}">Borrar Perfil</a>
                     </p>
-
                 {% endfor %}
                 {% if perfiles|length < 2 %}
-                    
                     <a href="/crear_perfil/">CrearPerfil</a>
                 {% endif %}
             {% else %}
@@ -27,8 +23,7 @@
         {% elif request.user.plan == "normal" %}
             {% if perfiles|length > 0 %}
                 Seleccione cual Perfil quiere utilizar de su cuenta
-                {% for perfil in perfiles %} 
-
+                {% for perfil in perfiles %}
                     <p>
                         <a style="margin: 10;" href="/perfil_seleccionado/{{perfil.id}}">{{perfil.name}}</a>  
                         <a style="font-size: 15px; margin-left: 15px;" href="/cambiar_nombre/{{perfil.name}}">Cambiar Nombre</a>
