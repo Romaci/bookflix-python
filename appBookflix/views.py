@@ -107,7 +107,7 @@ def register_page(request):
             tarjeta= CreditCards(number=numT, cod=codT, date_expiration=dateT, card_name=cardName, bank=bankT, user=cuenta)
             tarjeta.save()
             
-            return redirect('login')
+            return redirect('logout')
         else:
             context["user_creation_form"]=form
             context["creacion_tarjeta"]= formCard
