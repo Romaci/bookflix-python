@@ -1,18 +1,22 @@
+{% load static %}
 <html>
 <body>
     {% if request.user.is_active %}
         {% include "appBookflix/navbar.html" %}
-        <h1 style="color: black; margin: 10;">
         {% if request.user.plan == "free" or request.user.plan == "normal" %}
             {% if perfiles|length > 0 %}
-                Seleccione cual Perfil quiere utilizar de su cuenta
-                {% for perfil in perfiles %} 
-                    <p>
-                        <a style="margin: 10;" href="/perfil_seleccionado/{{perfil.id}}">{{perfil.name}}</a>  
-                        <a style="font-size: 15px; margin-left: 15px;" href="/cambiar_nombre/{{perfil.name}}">Cambiar Nombre</a>
-                        <a style="font-size: 12px; margin: 15px;" href="/borrar_perfil/{{perfil.name}}">Borrar Perfil</a>
-                    </p>
-                {% endfor %}
+            <div class="card-group" style="padding-top: 50px;">
+            {% for perfil in perfiles %} 
+                    <div class="card text-center" style="border:0px">
+                        <img class="card-img-top" src="{% static '/images/per1.jpg' %}" alt="logo" style="width: 180px;display:flex;
+                        margin:0 auto;">
+                      <div class="card-body">
+                        <h5 class="card-title"> <a style="margin: 10;" href="/perfil_seleccionado/{{perfil.id}}">{{perfil.name}}</a></h5>
+                         <p class="card-text"><a style="font-size: 15px; margin-right: 15px;" href="/cambiar_nombre/{{perfil.name}}">Cambiar Nombre</a> | <a style="font-size: 15px; margin-left: 15px;" href="/borrar_perfil/{{perfil.name}}">Borrar Perfil</a></p>
+                      </div>
+                    </div>
+            {% endfor %}
+            </div>
                 {% if perfiles|length < 2 %}
                     <a href="/crear_perfil/">CrearPerfil</a>
                 {% endif %}
