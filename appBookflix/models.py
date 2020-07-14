@@ -479,7 +479,7 @@ class Novedad(models.Model):
     description = models.TextField("descripcion",blank=True, null=True)
     mostrar_en_home= models.BooleanField(default=False)
     author = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name="autor")
-    imagen=models.ImageField(("imagen"), upload_to='bookflix/static/novedades', height_field=None, width_field=None, max_length=None, )
+    imagen= models.ImageField(("imagen"), upload_to='novedades', height_field=None, width_field=None, max_length=None, )
     video=  models.URLField(  max_length=255, blank=True, null=True)
 
     def publish(self):
@@ -489,8 +489,8 @@ class Novedad(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = "Novedad"
-        verbose_name_plural = "Novedades"
+        verbose_name = "Noticia"
+        verbose_name_plural = "Noticias"
 
 
 "-------Trailer-------"

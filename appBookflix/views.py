@@ -353,7 +353,7 @@ def catalogo(request):
 
 def noticias(request):
     noticia=Novedad.objects.filter(mostrar_en_home=True)
-    return render(request, "appBookflix/noticias.html",{'noticias':noticia, })
+    return render(request, "appBookflix/noticias.html",{'noticias':noticia })
 
 #COMENTARIOS
 
