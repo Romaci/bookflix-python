@@ -3,8 +3,8 @@
 <html>
 <body>
     
+  {% include "appBookflix/navbar_home.html" %}
 
-{% include "appBookflix/navbar_home.html" %}
 
 {% if request.session.nombrePerfil %}
 <!-- ---Carrusel Ultimas noticias--- -->
@@ -87,7 +87,8 @@ box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);">
           {%endfor%}
     </div>
     
-</div>
+</div>    
+
 <!-- ---Group cards Catálogo (ultimos 5 libros)--- -->
  
 {% endif %}
