@@ -340,6 +340,13 @@ def cambiar_nombre(request,nombre):
     return render(request, 'appBookflix/cambiar_nombre.html', context)
 
 
+
+#NOTICIAS
+
+def noticias(request):
+    noticia=Novedad.objects.filter(mostrar_en_home=True)
+    return render(request, "appBookflix/noticias.html",{'noticias':noticia, })
+
 #COMENTARIOS
 
 

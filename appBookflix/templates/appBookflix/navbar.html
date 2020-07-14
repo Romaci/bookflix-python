@@ -18,6 +18,9 @@
     <li class="nav-item">
       <a class="nav-link" href="/select_perfil">Perfiles</a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/noticias">Noticias</a>
+    </li>
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Cuenta
@@ -28,7 +31,7 @@
       </div>
     </li>
     {% if request.user.is_admin %}
-    <li><a class="nav-link" href="/solicitudes">Solicitudes</a></li>
+    <li><a class="nav-link" href="/solicitudes">ESTE YA NO VA Solicitudes</a></li>
     {% endif %}
     <li><a class="nav-link" href="/logout">Cerrar Sesion</a></li>
   </ul>
