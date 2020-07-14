@@ -6,7 +6,9 @@
         <tbody>
             <thead>
                 <tr>
-                    <th> <h4>Datos Personales</h4></th>
+                    <th>
+                        <h4>Datos Personales</h4>
+                    </th>
                     <th></th>
                     <th></th>
                 </tr>
@@ -23,16 +25,39 @@
                 <td><a href="/cambiar_email">Cambiar Dirección de mail</a></td>
 
             </tr>
-            <tr>
-                <th scope="row">Plan</th>
-                <td>{{request.user.plan}}</td>
-                <td><a href="/solicitar_cambio">Solicitud Cambio de Plan</a></td>
-            </tr>
+
             <tr>
                 <th scope="row">Contraseña</th>
                 <td>*****</td>
                 <td><a href="/cambiar_contrasenia">Cambiar Contraseña</a></td>
             </tr>
+            <thead>
+                <tr>
+                    <th>
+                        <h4>Datos del Plan</h4>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tr>
+                <th scope="row">Plan</th>
+                <td>{{request.user.plan}}</td>
+                <td><a href="/solicitar_cambio">Solicitud Cambio de Plan</a></td>
+            </tr>
+            {% if request.user.plan != "free" and request.user.plan != "normal" %}
+            <tr>
+                <th scope="row">Fecha de inicio de adhesión al plan</th>
+                <td>{{request.user.date_start_plan}}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Vencimiento</th>
+                <td>{{request.user.tiempo_restante}} dias</td>
+                <td></td>
+            </tr>
+            {% endif %}
+
             <thead>
                 <tr>
                     <th>
@@ -42,12 +67,12 @@
                     <th></th>
                 </tr>
             </thead>
-                <tr>
-                    <th scope="row">Número de Tarjeta</th>
-                    <td>*************{{tarjeta.ult4}}</td>
-                    <td><a href="/cambiar_tarjeta">Cambiar Datos de Tarjeta</a></td>
-                </tr>
-            
+            <tr>
+                <th scope="row">Número de Tarjeta</th>
+                <td>*************{{tarjeta.ult4}}</td>
+                <td><a href="/cambiar_tarjeta">Cambiar Datos de Tarjeta</a></td>
+            </tr>
+
         </tbody>
 </div>
 {% endblock %}
