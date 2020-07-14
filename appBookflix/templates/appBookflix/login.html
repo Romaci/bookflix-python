@@ -13,11 +13,20 @@
         <strong>Usted ya está logueado</strong> ¿Desea entrar con otra cuenta? entrar <a href="/logout" class="alert-link">aquí</a>
     </div>
 </div>
+{% if  request.user.is_admin %}
+<div class="row">
+    <div class="col">
+    <a href="/home" class="btn btn-secondary btn-lg"> ir a Home de Perfil</a>
+    </div>
+</div> 
+{% endif %}
+{% if not request.user.is_admin %}
 <div class="row">
     <div class="col">
     <a href="/select_perfil" class="btn btn-secondary btn-lg"> ir a Seleccionar Perfil</a>
-</div>
-</div>  
+    </div>
+</div> 
+{% endif %}
 </div>
 {% else %}
 {% include "appBookflix/navbar_login.html" %}
