@@ -25,13 +25,15 @@
         <div class="card-body text-right" >
             <form method="POST"> {% csrf_token %}
             <div class="form-group" style="margin-top: 20px;">
+                <div class="text-center">
                 {% for field in profile_creation_form %}
                 {{field.label_tag}}
                 {{field}}
-            
+            </div>
             {% endfor %}
                 <div class="text-center" style="margin-top: 20px;" >
                     <button type="submit"  class="btn btn-primary">Registrar</button>
+                    <a style="margin: 15px;" type="button" class="btn btn-secondary"href="/select_perfil/">Cancelar</a>
                 </div>
             </div>
         </form>
