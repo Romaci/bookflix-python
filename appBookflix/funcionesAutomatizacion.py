@@ -1,3 +1,5 @@
+
+
 def cambioNormal(lista, bool):
     for l in lista:
         l.on_normal= bool
@@ -22,18 +24,46 @@ from .models import Account, UserSolicitud, StateOfBook, StateOfBookByChapter, L
 
 def darDeBajaUsuarios(objectAccounts):
 
-    for acc in objectAccounts:
-        if timezone.now().date() == (acc.date_start_plan + datetime.timedelta(days=acc.time_pay)):
+    for ac in objectAccounts:
+        acc= Account.objects.get(id= ac['user'])
+        sol= UserSolicitud.objects.get(id=ac['id'])
+        if timezone.now().date() >= (acc.date_start_plan + datetime.timedelta(days=acc.time_pay)):
             acc.plan = 'free'
-            acc. time_pay = 0
+            acc.time_pay = 0
             acc.save()
-            
+            sol.is_accepted=1
+            sol.save()
+
+def CambiarjaUsuariosNormal(objectAccounts):
+
+    for ac in objectAccounts:
+        acc= Account.objects.get(id= ac['user'])
+        sol= UserSolicitud.objects.get(id=ac['id'])
+        if timezone.now().date() >= (acc.date_start_plan + datetime.timedelta(days=acc.time_pay)):
+            acc.plan = 'normal'
+            acc.date_start_plan= timezone.now().date()
+            acc.time_pay = 1
+            acc.save()
+            sol.is_accepted=1
+            sol.save()
+
+def CambiarjaUsuariosPremium(objectAccounts):
+
+    for ac in objectAccounts:
+        acc= Account.objects.get(id= ac['user'])
+        sol= UserSolicitud.objects.get(id=ac['id'])
+        if timezone.now().date() >= (acc.date_start_plan + datetime.timedelta(days=acc.time_pay)):
+            acc.date_start_plan= timezone.now().date()
+            acc.plan = 'premium'
+            acc.time_pay = 1
+            acc.save()
+            sol.is_accepted=1
+            sol.save()
+
 from random import randint, uniform
 import random
 
 
-
-    
 def recomendados(perfil):
     lib= Libro.objects.all()
     def randomCood(num):
@@ -47,41 +77,47 @@ def recomendados(perfil):
         
         libros_leidos=[]
         for i in estados:
-            libros_leidos.append(Book.objects.get(id = i['book']))
+            libros_leidos.append(Libro.objects.get(isbn = i['book']))
     #Aqui saco el libro random leido para buscar otros con características similares
         
         libroARandom=libros_leidos[randomCood(len(libros_leidos))]
 
+        estados2= StateOfBook.objects.filter(profile_id =perfil.id, state='reading').values('book')
+        for i in estados2:
+            libros_leidos.append(Libro.objects.get(isbn= i['book']))
+
+        #######################################
     #Recupero algun libro con alguno de los generos de ese libro
-        generos= libroARandom.genders.all()
+        generos= libroARandom.genero.all()
         aux= [ ]
         for genero in generos:
             aux.append(genero)
-        genero= aux[randomCood(len(aux))]
+        genero= aux[randomCood(len(aux))]   
             
-        librosConEseGenero= set(Libro.objects.filter(genders=genero, mostrar_en_home=True)) - set(libros_leidos)
+        librosConEseGenero= set(Libro.objects.filter(genero=genero, mostrar_en_home=True)) - set(libros_leidos)
         librosDeEseGenero=librosConEseGenero
-        
+        ###########################################
     #Recupero Algun Libro de esa Editorial
         editorial= libroARandom.editorial
         
         librosConEsaEditorial= set(Libro.objects.filter(editorial=editorial, mostrar_en_home=True)) - set(libros_leidos)
         librodeEsaEditorial= librosConEsaEditorial
-        
+        #########################################
     #Recupero Libro de Ese Autor
-        autor= libroARandom.author
-        librosConEseAutor= set(Libro.objects.filter(author=autor, mostrar_en_home=True)) - set(libros_leidos)
+        autor= libroARandom.autor
+        librosConEseAutor= set(Libro.objects.filter(autor=autor, mostrar_en_home=True)) - set(libros_leidos)
         libroDeEseAutor=librosConEseAutor
-
+        ####################################
         auxiliar=  librodeEsaEditorial | libroDeEseAutor | librosDeEseGenero
-
+        
         if len(auxiliar)> 0:
             return auxiliar
         return  ( set(lib) - set(libros_leidos) )
        
     except:
-        
+       
         return  set(lib)
+     
 
 def recomendadosCap(perfil):
     lib= BookByChapter.objects.all()

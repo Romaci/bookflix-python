@@ -24,7 +24,7 @@ from django.core import serializers
 
 from random import randint, uniform
 from .funcionesAutomatizacion import *
-
+import datetime
 
 
 def landing_view (request):
@@ -97,6 +97,9 @@ def register_page(request):
             email= form.cleaned_data.get('email')
             raw_password= form.cleaned_data.get('password1')
             #account = authenticate(email=email, password=raw_password)
+            cuenta.plan= 'normal'
+            cuenta.diaspagados=30
+            cuenta.save()
             
             numT= formCard.cleaned_data.get("number")
             codT= formCard.cleaned_data.get("cod")
@@ -144,6 +147,13 @@ def datos_personales(request):
     context["perfiles"]=perfiles
     return render(request, "appBookflix/datos_personales.html", context)
 
+
+
+def solicitudes(request):
+    solicitudes = UserSolicitud.objects.filter(type_of_solicitud='alta', is_accepted=0)
+    usuarios= UserSolicitud.objects.filter(type_of_solicitud='alta', is_accepted=0).values('user')
+    tarjetas= CreditCards.objects.filter(user__in= usuarios)
+    return render(request,"appBookflix/solicitudes.html",{"solicitudes":solicitudes, "tarjetas":tarjetas})
 
 def login_propio(request):
     # Creamos el formulario de autenticación vacío
@@ -447,6 +457,22 @@ def calcularPuntosDeLibro(likes, cantLikes):
         aux= aux + i.points
     return (aux / cantLikes)
 
+def entreFechas(request): 
+    context={}
+    #request.session['ErrorDePerfil'] = "1"
+    context['suscriptores']=None
+    if request.POST:
+        form= suscriptosEntreFechasForm(request.POST)
+        if form.is_valid():
+            try:
+                rango2= Account.objects.filter(date_joined__range=(form.cleaned_data['de'],form.cleaned_data['hasta'] ))
+                context['suscriptores']=rango2
+            except Account.DoesNotExist:
+                pass
+    
+    form=suscriptosEntreFechasForm()
+    context['rango2']=form #guarda formulario vacío
+    return render(request, 'appBookflix/buscarSuscriptores.html', context)
 
 
 
@@ -455,29 +481,29 @@ def leer_libro(request,isbn):
      context={}
      libro= Libro.objects.get(isbn = isbn)  #Aca recupero el libro por el isbn para no cambiar el template
      request.session["lectura_otro_perfil"] = False
-     if request.user.plan == 'normal':
-        try:
-            perfil = Profile.objects.exclude(id=request.session["perfil_ayuda"]).get(account=request.user) #aca agrego el isbn al objeto
-            try: 
-                state = StateOfBook.objects.get(state="reading", profile=perfil, book= libro.id)
-                request.session["lectura_otro_perfil"] = True
-            except StateOfBook.DoesNotExist:
-                pass 
-        except Profile.DoesNotExist:
-            pass    
-        try:
-            estado_propio = StateOfBook.objects.get(state="reading", profile=request.session["perfil_ayuda"])
-            comenzado = True
-            context['comenzado']= comenzado
-        except StateOfBook.DoesNotExist:
-            comenzado = False
-            context['comenzado']= comenzado
-            context['terminado']= True
+     #if request.user.plan == 'normal' or request.user.plan == 'free' or request.user.plan == 'premium':
+       # try:
+        #    perfil = Profile.objects.exclude(id=request.session["perfil_ayuda"]).get(account=request.user) #aca agrego el isbn al objeto
+        #    try: 
+         #       state = StateOfBook.objects.get(state="reading", profile=perfil, book= libro.isbn)
+         #       request.session["lectura_otro_perfil"] = True
+         #   except StateOfBook.DoesNotExist:
+         #       pass 
+      #  except Profile.DoesNotExist:
+        #    pass    
+      #  try:
+       #     estado_propio = StateOfBook.objects.get(state="reading", profile=request.session["perfil_ayuda"])
+      #      comenzado = True
+       #     context['comenzado']= comenzado
+      #  except StateOfBook.DoesNotExist:
+       #     comenzado = False
+       #     context['comenzado']= comenzado
+       #     context['terminado']= True
 
         
 
      try:
-        estado = StateOfBook.objects.get(state="finished", profile=request.session["perfil_ayuda"])
+        estado = StateOfBook.objects.get(state="finished", profile=request.session["perfil_ayuda"],book=libro)
         context['terminado']= True
      except:
          context['terminado']= False
@@ -501,7 +527,7 @@ def leer_libro(request,isbn):
      context['comentarios']= comentarios
      #Este try lo agregué para el Agregar y quitar de leyendo, reever en un futuro
      try:
-        estado_propio = StateOfBook.objects.get(state="reading", profile=request.session["perfil_ayuda"])
+        estado_propio = StateOfBook.objects.get(state="reading", profile=request.session["perfil_ayuda"],book=libro)
         comenzado = True
         context['comenzado']= comenzado
      except StateOfBook.DoesNotExist:
@@ -522,6 +548,122 @@ def leer_libro(request,isbn):
      except StateOfBook.DoesNotExist:
         context['agregar_futura_lectura'] = True    
      return render(request,"appBookflix/leer_libro.html",context) 
+
+
+
+def leer_libro_por_capitulo(request,isbn):
+     context= {}
+     libro = BookByChapter.objects.get(isbn=isbn)
+     if libro.mostrar_en_home == False:
+        return redirect('/')
+     cap_actual = 1
+     capitulos=[]
+     for i in range (0,libro.cant_chapter): 
+        try: 
+            Chapter.objects.get(book=libro, number=cap_actual, active=True) 
+            capitulos.append(Chapter.objects.get(book=libro, number=cap_actual))
+            cap_actual = cap_actual + 1
+        except Chapter.DoesNotExist: 
+            pass
+        #capitulos = Chapter.objects.filter(book=libro)
+     try: 
+        puntajeMio= LikeBookByChapter.objects.get(book=libro, author= request.session['perfil_ayuda'])
+     except: 
+        puntajeMio= 0
+     try:
+        likes= LikeBookByChapter.objects.filter(book= libro)
+        cantLikes= LikeBookByChapter.objects.filter(book= libro).count()
+        puntaje= calcularPuntosDeLibro(likes, cantLikes)
+     except: puntaje= 0
+
+     comentarios= CommentBookByChapter.objects.filter(publication = libro)
+     context['capitulos']=capitulos
+     context['libro']= libro
+     context['comentarios']= comentarios
+     context['puntaje']= puntaje
+     context['puntajeMio']= puntajeMio
+
+
+
+     #desde acá empiezo a agregar funcionalidades del otro leer
+
+     
+     request.session["lectura_otro_perfil"] = False
+     if request.user.plan == 'normal'  :
+        try:
+            perfil = Profile.objects.exclude(id=request.session["perfil_ayuda"]).get(account=request.user) #aca agrego el isbn al objeto
+            try: 
+                state = StateOfBookByChapter.objects.get(state="reading", profile=perfil, book= libro.isbn)
+                request.session["lectura_otro_perfil"] = True
+            except StateOfBookByChapter.DoesNotExist:
+                pass 
+        except Profile.DoesNotExist:
+            pass    
+        try:
+            estado_propio = StateOfBookByChapter.objects.get(state="reading", profile=request.session["perfil_ayuda"])
+            comenzado = True
+            context['comenzado']= comenzado
+        except StateOfBookByChapter.DoesNotExist:
+            comenzado = False
+            context['comenzado']= comenzado
+            context['terminado']= True
+
+            ##
+            state = StateOfBookByChapter.objects.get(state="finished", profile=perfil, book= libro.isbn)
+            context['terminado']= True
+
+     try:
+        estado = StateOfBookByChapter.objects.get(state="finished", book=libro, profile=request.session["perfil_ayuda"])
+        context['terminado']= True
+     except:
+         context['terminado']= False
+
+
+     libro = BookByChapter.objects.get(isbn=isbn)
+     try: 
+        puntajeMio= Like.objects.get(book=libro, author= request.session['perfil_ayuda'])
+     except: 
+         puntajeMio= 0
+     try:
+         likes= LikeBookByChapter.objects.filter(book=libro)
+         cantLikes= LikeBookByChapter.objects.filter(book=libro).count()
+         puntaje= calcularPuntosDeLibro(likes, cantLikes)
+     except: puntaje= 0
+
+     comentarios= CommentBookByChapter.objects.filter(publication = libro)
+     context['puntaje']= puntaje
+     context['puntajeMio']= puntajeMio
+     context['libro']= libro
+     context['comentarios']= comentarios
+     #Este try lo agregué para el Agregar y quitar de leyendo, reever en un futuro
+     try:
+        estado_propio = StateOfBookByChapter.objects.get(state="reading", book=libro, profile=request.session["perfil_ayuda"])
+        comenzado = True
+        context['comenzado']= comenzado
+     except StateOfBookByChapter.DoesNotExist:
+        comenzado = False
+        context['comenzado']= comenzado
+     #Fin del try de leyendo
+     try:
+        perfil = Profile.objects.get(id=request.session["perfil_ayuda"]) 
+        favorito = LibroPorCapituloFavorito.objects.get(isbn=isbn, profile=perfil)
+        context['agregar_favorito'] = False
+     except LibroPorCapituloFavorito.DoesNotExist:
+        context['agregar_favorito'] = True 
+     try: 
+        perfil = Profile.objects.get(id=request.session["perfil_ayuda"]) 
+        libro = BookByChapter.objects.get(isbn=isbn)
+        futura_lectura = StateOfBookByChapter.objects.get(state="future_reading", book=libro, profile=perfil)
+        context['agregar_futura_lectura'] = False
+     except StateOfBookByChapter.DoesNotExist:
+        context['agregar_futura_lectura'] = True 
+
+    
+     favoritos = CapituloFavorito.objects.filter(profile=perfil, book=libro)#.values("titulo_capitulo")
+     
+     context["favoritos"]= favoritos
+     
+     return render(request,"appBookflix/libro_capitulo.html",context) 
 
 
 #acciones de usuario con los libros
@@ -699,4 +841,388 @@ def libro_cap_por_leer(request,isbn):
     return render(request,"bookflix/libro_por_leer.html", {"libro":libro} )
      
 
+def historial(request):
+     historial_libros = StateOfBook.objects.filter(state="finished")
+     historial_libros_cap = StateOfBookByChapter.objects.filter(state="finished")
+     #historial = historial_libros_cap |= historial_libros
+     sesion = request.session
+     return render(request,"appBookflix/historial.html",{"historial_libros":historial_libros,"historial_libros_cap":historial_libros_cap, "sesion":sesion }) 
 
+def listar_favoritos(request):
+    perfil = Profile.objects.get(id=request.session["perfil_ayuda"])
+    libros_favoritos = LibroFavorito.objects.filter(profile=perfil)
+    libros_por_capitulo_favoritos = LibroPorCapituloFavorito.objects.filter(profile=perfil)
+    capitulos_favoritos = CapituloFavorito.objects.filter(profile=perfil)
+    return render(request,"appBookflix/favoritos.html", {"libros_favoritos":libros_favoritos, "libros_por_capitulo_favoritos":libros_por_capitulo_favoritos,"capitulos_favoritos":capitulos_favoritos})
+
+
+def trailers(request):
+    trailers = Trailer.objects.filter(mostrar_en_home=True)
+    return render(request,"appBookflix/trailers.html",{"trailers":trailers})
+
+
+
+def mas_leidos (request):
+
+    context={}
+    libro= StateOfBook.objects.filter(state="finished").values('book').annotate(terminado=models.Count('book'))
+    libroCap= StateOfBookByChapter.objects.filter(state="finished").values('book').annotate(terminado=models.Count('book'))
+
+    libro2= sorted(libro, key = lambda user: user['terminado'])
+    libro2= libro2[::-1]    
+    libro4= sorted(libroCap, key = lambda user: user['terminado'])
+    libro4= libro4[::-1]    
+    libro3=[]
+    libro5=[]
+    for i in libro2:
+        l4= Libro.objects.get(isbn= i['book'])
+        libro3.append({'libro':l4, 'cantidad': i['terminado']})
+    for i in libro4:
+        l4= BookByChapter.objects.get(id= i['book'])
+        libro5.append({'libro':l4, 'cantidad': i['terminado']})
+    context['libros']= libro3
+    context['librosCap']= libro5
+    
+    return render(request,'appBookflix/mas_leidos.html', context)
+
+
+
+
+#ELIMINAR
+
+def borrar_perfil(request,perfil):
+    perfil_a_borrar = Profile.objects.get(account=request.user, name=perfil)
+    return render(request,"appBookflix/borrar_perfil.html", {"perfil":perfil_a_borrar})
+
+
+def borrar_perfil_definitivo(request,perfil):
+    perfil_a_borrar = Profile.objects.get(account=request.user, name=perfil)
+    perfil_a_borrar.delete()
+    request.session["perfil_ayuda"] = False
+    request.session['nombrePerfil']= False
+    request.session['perfil_actual']= None
+    request.session.modified = True
+    return redirect(to="/select_perfil")
+
+def borrar_cuenta(request):
+    return render(request,"appBookflix/borrar_cuenta.html")
+
+
+def borrar_cuenta_definitivo(request):
+    cuenta = Account.objects.get(id=request.user.id)
+    cuenta.delete()
+    return redirect(to="/login")
+
+
+
+#SOLICITUDES
+
+def solicitar_cambio(request):
+    context= { }
+    request.session["solicitud"]="1"
+    request.session.modified = True
+    try:
+        cambio_plan =  UserSolicitud.objects.get(is_accepted=0, user=request.user)
+        request.session["solicitud"]="0"
+        request.session.modified = True
+    except UserSolicitud.DoesNotExist: 
+        pass
+    request.session['ErrorSolicitudCambio']= "Su plan es: " + request.user.plan + ". Si selecciona el mismo no tendrá efecto" 
+    request.session.modified = True
+    if request.POST:   
+        form= UserSolicitudForm(request.POST)
+        if form.is_valid():
+            planSolicitad= form.cleaned_data['tipo_de_plan']
+            if planSolicitad == request.user.plan:
+                request.session['ErrorSolicitudCambio']="No puede seleccionar un plan"
+                request.session.modified=True
+            elif planSolicitad == 'free':
+                sol=UserSolicitud(type_of_solicitud='baja', type_of_plan='free', user= request.user)
+                sol.save()
+                return redirect('/perfil')
+            elif planSolicitad == 'normal':
+                if request.user.plan == 'free':
+                    sol= UserSolicitud(type_of_solicitud='alta', type_of_plan='normal', user= request.user)
+                    sol.save()
+                else:
+                    sol= UserSolicitud(type_of_solicitud='cambio', type_of_plan='normal', user= request.user)
+                    sol.save()
+                return redirect('/perfil')    
+            else:
+                if request.user.plan == 'free':
+                    sol= UserSolicitud(type_of_solicitud='alta', type_of_plan='premium', user= request.user)
+                    sol.save()
+                else: 
+                    sol= UserSolicitud(type_of_solicitud='cambio', type_of_plan='premium', user= request.user)
+                    sol.save()
+                return redirect('/perfil') 
+    form= UserSolicitudForm()
+    context['solicitud'] = form
+    return render(request,"appBookflix/solicitar_cambio.html", context)
+
+
+
+def aceptarSolicitud(request,idSol,num):
+    try:
+        sol= UserSolicitud.objects.get(id=idSol)
+        
+        if num == '1':
+            userSol= UserSolicitud.objects.filter(id=idSol).values('user')
+            us= Account.objects.get(id__in=userSol)
+            sol.is_accepted= num
+            sol.save()
+            us.plan= sol.type_of_plan
+            us.time_pay=30
+            us.date_start_plan= timezone.now()
+            us.save()
+        else:
+            sol.is_accepted=num
+            sol.save()
+    except UserSolicitud.DoesNotExist:
+        pass
+    return redirect('/solicitudes')   
+
+
+
+
+#BUSCAR
+
+def buscar(request):
+    context={ }
+    if request.POST:
+        form= BuscarForm(request.POST)
+        if form.is_valid():
+
+            def buscar_por_autor(query):
+                autores = Autor.objects.filter(nombre__icontains=query)
+                autores2 = Autor.objects.filter(apellido__icontains=query)
+                result = []
+                for autor in autores:
+                    result = result + list(Libro.objects.filter(autor=autor, mostrar_en_home=True))
+                for autor in autores2:
+                    result = result + list(Libro.objects.filter(autor=autor, mostrar_en_home=True))
+                return result
+
+            def buscar_por_genero(query):
+                generos = Genero.objects.filter(nombre__icontains=query)
+                result = []
+                for genero in generos:
+                    result = result + list(Libro.objects.filter(genero=genero, mostrar_en_home=True))
+                return result
+
+            def buscar_por_editorial(query):
+                editoriales = Editorial.objects.filter(name__icontains=query)
+                result = []
+                for editorial in editoriales:
+                    result = result + list(Libro.objects.filter(editorial=editorial, mostrar_en_home=True))
+                return result
+
+            def buscar_por_titulo(query):
+                result = Libro.objects.filter(titulo__icontains=query)
+                return result
+
+
+            def buscar_por_autorCap(query):
+                autores = Autor.objects.filter(nombre__icontains=query)
+                autores2 = Autor.objects.filter(apellido__icontains=query)
+                result = []
+                for autor in autores:
+                    result = result + list(BookByChapter.objects.filter(autor=autor, mostrar_en_home=True))
+                for autor in autores2:
+                    result = result + list(BookByChapter.objects.filter(autor=autor, mostrar_en_home=True))
+                return result
+
+            def buscar_por_generoCap(query):
+                generos = Genero.objects.filter(nombre__icontains=query)
+                result = []
+                for genero in generos:
+                    result = result + list(BookByChapter.objects.filter(genders=genero, mostrar_en_home=True))
+                return result
+
+            def buscar_por_editorialCap(query):
+                editoriales = Editorial.objects.filter(name__icontains=query)
+                result = []
+                for editorial in editoriales:
+                    result = result + list(BookByChapter.objects.filter(editorial=editorial, mostrar_en_home=True))
+                return result
+
+            def buscar_por_tituloCap(query):
+                result = BookByChapter.objects.filter(title__icontains=query, mostrar_en_home=True)
+                return result
+
+            def buscar_por_isbn(query):
+                result = Libro.objects.filter(isbn=query, mostrar_en_home=True)
+                return result
+
+            def buscar_por_isbnCap(query):
+                result = BookByChapter.objects.filter(isbn=query, mostrar_en_home=True)
+                return result
+
+            palabra= form.cleaned_data['buscar']
+            query= str(palabra).split(' ')
+            allBook = Libro.objects.filter(mostrar_en_home = True)
+            AllBookCap= BookByChapter.objects.filter(mostrar_en_home = True)
+            results=set()
+            resultsCap=set()
+            for palabra in query:
+
+                #if buscar_por_autor(palabra):
+                resultsAutor = set(allBook) & set(buscar_por_autor(palabra))
+                #if buscar_por_genero(palabra):
+                resultsGenero =  set(allBook)  & set(buscar_por_genero(palabra))
+                #if buscar_por_titulo(palabra):
+                resultsTitulo =  set(allBook)  & set(buscar_por_titulo(palabra))
+                #if buscar_por_editorial(palabra):                    
+                resultsEditorial = set(allBook)  & set(buscar_por_editorial(palabra))
+                resultsIsbn= set(allBook) & set(buscar_por_isbn(palabra))
+                results= results | (resultsAutor | resultsGenero | resultsTitulo | resultsEditorial | resultsIsbn)
+
+                #if buscar_por_autorCap(palabra):
+                resultsAutor = set(AllBookCap) & set(buscar_por_autorCap(palabra))
+                #if buscar_por_generoCap(palabra):
+                resultsGenero = set(AllBookCap) & set(buscar_por_generoCap(palabra))
+                #if buscar_por_tituloCap(palabra):
+                resultsTitulo = set(AllBookCap) & set(buscar_por_tituloCap(palabra))
+                #if buscar_por_editorialCap(palabra):
+                resultsEditorial = set(AllBookCap) & set(buscar_por_editorialCap(palabra))
+                resultsIsbn= set(AllBookCap) & set(buscar_por_isbnCap(palabra))
+                resultsCap= resultsCap | (resultsAutor | resultsGenero | resultsTitulo | resultsEditorial | resultsIsbn)
+
+            context['libros']= set(results)
+            context['librosCap']= set(resultsCap) 
+    else:
+        context['libros']= Libro.objects.all()
+        context['librosCap']= BookByChapter.objects.all()
+    form=BuscarForm()
+    context['form']= form
+    return render(request, "appBookflix/buscar.html", context)
+
+
+
+
+#Funciones de automatizacion, escribir cualquier otra view antes que esta
+
+def simuladorTemporal(request):
+    context={}
+   #Libros
+    try:
+        Lib= UpDownBook.objects.filter(up_normal =timezone.now()).values('book')
+        li= Libro.objects.filter(isbn__in=Lib)
+        cambioNormal(li, True)
+        
+    except UpDownBook.DoesNotExist:
+        pass
+    try:
+        Lib= UpDownBook.objects.filter(expiration_normal=timezone.now().date()).values('book')         
+        li= Libro.objects.filter(isbn__in=Lib)
+        cambioNormal(li, False)
+    except UpDownBook.DoesNotExist:
+        pass
+    try:
+        Lib= UpDownBook.objects.filter(up_premium =timezone.now()).values('book')
+        li= Libro.objects.filter(isbn__in=Lib)
+        cambioPremium(li, True)
+    except UpDownBook.DoesNotExist:
+        pass
+    try:
+        Lib= UpDownBook.objects.filter(expiration_premium=timezone.now().date()).values('book')         
+        li= Libro.objects.filter(isbn__in=Lib)
+        cambioPremium(li,False)
+    except UpDownBook.DoesNotExist:
+        pass
+
+    #LibrosPorCapitulo
+    try:
+        Lib= UpDownBookByChapter.objects.filter(up_normal =timezone.now()).values('book')
+        li= BookByChapter.objects.filter(id__in=Lib)
+        cambioNormal(li, True)
+    except UpDownBookByChapter.DoesNotExist:
+        pass
+    try:
+        Lib= UpDownBookByChapter.objects.filter(expiration_normal=timezone.now().date()).values('book')         
+        li= BookByChapter.objects.filter(id__in=Lib)
+        cambioNormal(li, False)
+    except UpDownBookByChapter.DoesNotExist:
+        pass
+    try:
+        Lib= UpDownBookByChapter.objects.filter(up_premium =timezone.now()).values('book')
+        li= BookByChapter.objects.filter(id__in=Lib)
+        cambioPremium(li, True)
+    except UpDownBookByChapter.DoesNotExist:
+        pass
+    try:
+        Lib= UpDownBookByChapter.objects.filter(expiration_premium=timezone.now().date()).values('book')         
+        li= BookByChapter.objects.filter(id__in=Lib)
+        cambioPremium(li,False)
+    except UpDownBookByChapter.DoesNotExist:
+        pass
+    
+    #Capitulos
+
+    try:
+        cha= UpDownChapter.objects.filter(up =timezone.now()).values('chapter')
+        c= Chapter.objects.filter(id__in=cha)
+        cambioOtros(c, True )
+    except Chapter.DoesNotExist: 
+        pass
+    try:
+        cha= UpDownChapter.objects.filter(expirationl =timezone.now()).values('chapter')
+        c= Chapter.objects.filter(id__in=cha)
+        cambioOtros(c, False )
+    except Chapter.DoesNotExist: pass
+
+    #Novedades
+
+    try:
+        cha= UpDownNovedad.objects.filter(up =timezone.now()).values('Novedad')
+        c= Novedad.objects.filter(id__in=cha)
+        cambioBilTra(c, True )
+    except Novedad.DoesNotExist: pass
+    try:
+        cha= UpDownNovedad.objects.filter(expirationl =timezone.now()).values('Novedad')
+        c= Novedad.objects.filter(id__in=cha)
+        cambioBilTra(c, False )
+    except Novedad.DoesNotExist: pass
+
+    #Trailer
+
+    try:
+        cha= UpDownTrailer.objects.filter(up =timezone.now()).values('trailer')
+        c= Trailer.objects.filter(id__in=cha)
+        cambioBilTra(c, True )
+    except Trailer.DoesNotExist: pass
+    try:
+        cha= UpDownTrailer.objects.filter(expirationl =timezone.now()).values('trailer')
+        c= Trailer.objects.filter(id__in=cha)
+        cambioBilTra(c, False )
+    except Trailer.DoesNotExist: pass
+
+    #Bajas usuarios
+    try:
+        sol= UserSolicitud.objects.filter(type_of_solicitud='baja', is_accepted=0).values('user', 'is_accepted', 'id')
+        darDeBajaUsuarios(sol)
+        context['libros']= sol
+    except UserSolicitud.DoesNotExist: pass
+
+
+    try:
+        sol= UserSolicitud.objects.filter(type_of_solicitud='cambio', type_of_plan='normal', is_accepted=0).values('user', 'is_accepted', 'id')
+        CambiarjaUsuariosNormal(sol)
+        context['libros']= sol
+    except UserSolicitud.DoesNotExist: pass
+
+    try:
+        sol= UserSolicitud.objects.filter(type_of_solicitud='cambio', type_of_plan='premium', is_accepted=0).values('user', 'is_accepted', 'id')
+        CambiarjaUsuariosPremium(sol)
+        context['libros']= sol
+    except UserSolicitud.DoesNotExist: pass
+    return redirect('/solicitudes')
+
+
+
+
+
+
+
+
+    

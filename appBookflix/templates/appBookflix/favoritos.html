@@ -1,0 +1,99 @@
+<html>
+    <style>
+        #favoritos{
+            margin: 10;
+            border: 10px;
+            padding:70px;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        #favoritos li{
+            display: inline;
+            margin-left: 15%;
+            border: 10px;
+        }
+        #libros{
+            margin: 10 10 10 10;
+            border: 10px 10px 10px 10px;
+            padding:70px;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        #libros li{
+            display: inline;
+            margin: 10px 10px 10px 10px;
+            border: 10px 10px 10px 10px ;
+        }
+        #libros div p{
+            display: inline;
+            margin-left: 1%;
+            border: 10px;
+        }
+
+    </style>
+<body>
+ 
+{% include "appBookflix/navbar.html" %}
+
+<h2>Libros Favoritos</h2>
+
+<ul id="favoritos">
+
+    {% if libros_favoritos %}
+        {% for libro in libros_favoritos %}
+            <li style="display: inline-block;"> 
+                <a href="/leer_libro/{{libro.book.isbn}}">{{libro.book.titulo}}</a> 
+                <br>
+                <img style="max-width:275px; max-height:275px;" src="{{libro.book.portada.url}}"  alt="fondo" >
+                <br>
+            </li>
+        {% endfor %}
+    {% else %}
+        <h2></h2>
+        <p>No hay libros agregados a favoritos</p>
+    {% endif %}
+
+</ul>
+ <hr>
+ <ul id="favoritos">
+    <h3>Libros Favoritos Por Capitulo</h3>
+    {% if libros_por_capitulo_favoritos %}
+        {% for libro in libros_por_capitulo_favoritos %}
+            
+            <li style="display: inline-block;"> 
+                <a href="/libro_capitulo/{{libro.book.isbn}}">{{libro.book.title}}</a> 
+                <br>
+                <img style="max-width:275px; max-height:275px;" src="{{libro.book.portada.url}}"  alt="fondo" >
+                <br>
+            </li>
+        {% endfor %}
+    {% else %}
+        <p>No hay libros por capitulo agregados a favoritos</p>
+    {% endif %}
+
+</ul>
+
+
+<ul id="favoritos">
+
+    {% if capitulos_favoritos %}
+        {% for capitulo in capitulos_favoritos %}
+            <li style="display: inline-block;"> 
+                <p>{{capitulo.titulo_capitulo}} </p>
+                del libro:
+                <a href="/libro_capitulo/{{capitulo.book.isbn}}">{{capitulo.book.title}}</a> 
+                <br>
+                <img style="max-width:275px; max-height:275px;" src="{{capitulo.book.image.url}}"  alt="fondo" >
+                <br>
+            </li>
+        {% endfor %}
+    {% else %}
+        <h2></h2>
+        <p>No hay capitulos agregados a favoritos</p>
+    {% endif %}
+
+</ul>
+ <hr>
+
+</body>
+</html>

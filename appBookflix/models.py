@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.core.exceptions import FieldError, ValidationError
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils import timezone
 from creditcards.models import CardNumberField, CardExpiryField, SecurityCodeField
 
@@ -81,6 +81,13 @@ class Account(AbstractBaseUser):
     def nombre(self):
         return self.username
 
+    def tiempo_restante(self):
+        tiempo_pagado = timedelta(days=self.time_pay)
+        fecha_limite = tiempo_pagado + self.date_start_plan
+        dias_restantes = fecha_limite - datetime.now().date()
+        return dias_restantes.days
+
+
     def has_perm (self, perm, obj=None): #ESTO SIGNIFICA QUE SI ES ADMIN VA A PODER HACER CAMBIOS EN LA DB
         return self.is_admin
     
@@ -94,28 +101,15 @@ class Account(AbstractBaseUser):
 
 
 
-"""
-class Tarjeta(models.Model):
-    cc_number = CardNumberField(('Número de tarjeta'))
-    cc_expiry = CardExpiryField(('Fecha de vencimiento'))
-    cc_code = SecurityCodeField(('Código de seguridad'))
- 
-class Usuario (models.Model):
-    nombre= models.CharField(max_length=50, blank=True, null=True)
-    apellido= models.CharField(max_length=50, blank=True, null=True)
-    password=models.CharField(max_length=20)
-    email= models.EmailField(max_length=254)
-    username= models.CharField(max_length=50)
-    tarjeta=models.OneToOneField(Tarjeta,on_delete=models.CASCADE)
- 
-    def publish(self):         
-        self.save()
-    def __str__(self):         
-        return self.nombre
-    class Meta:
-        verbose_name = "Usuario"
-        verbose_name_plural = "Usuarios"
-"""
+def numerolegal(value):
+    if value == 0:
+        raise ValidationError('un capitulo no puede ser numero cero')
+    elif value < 0 :
+        raise ValidationError('un capitulo no puede tener un numero negativo')
+    else:
+        return value
+
+
 
 
 #CreditCards
@@ -141,6 +135,27 @@ class CreditCards(models.Model):
     class Meta:
         verbose_name = "Tarjeta"
         verbose_name_plural = "Tarjetas"
+
+
+#CreditCardsUsed
+
+class CreditCardsUsed(models.Model):
+    number = CardNumberField('numero')
+    date_expiration= CardExpiryField('fecha de vencimiento')
+    cod = SecurityCodeField('codigo de seguridad')
+    card_name = models.CharField("nombre de tarjeta",max_length=50)
+    bank = models.CharField(('banco'),max_length=50)
+
+    def publish(self):
+        self.save()
+
+    def __str__(self):
+        return str(self.number)
+
+    class Meta:
+        verbose_name = "Tarjeta Usada"
+        verbose_name_plural = "Tarjetas Usadas"
+
  
 
 #AUTOR 
@@ -279,6 +294,11 @@ class Profile(models.Model):
         unique_together= ('name', 'account')
 
 
+
+
+    
+
+
 "-------BookByChapter-------"
 class BookByChapter(models.Model):
     isbn = models.CharField( max_length=16, unique=True, validators =[validateIsbnPorCapitulo, validateIsbnNum], )
@@ -313,14 +333,49 @@ class BookByChapter(models.Model):
 
     def __str__(self):
         return self.title
-    
+
+
+
+"-------Chapter-------"
+class Chapter(models.Model):    
+    book= models.ForeignKey(BookByChapter, on_delete=models.CASCADE, verbose_name="libro",) # validators=[libroLleno])
+    title= models.CharField(("Titulo del capítulo"), max_length=50, help_text="Ingrese el nombre del capítulo, en caso de no tenerlo, su numero de cap, esta información se mostrará al usuario")
+    number = models.IntegerField(("numero de capitulo"), validators=[numerolegal], help_text="este dato es solo para ordenar las busquedas internas, sepa que si un libro tiene dos capitulos y aquí pone 10 (en vez de 1) , no afectara al libro, pero en el orden se mostrara al final")
+    description = models.TextField(("Descripción del capítulo"), blank=True, null=True)
+    pdf = models.FileField(upload_to='pdf')
+    active = models.BooleanField(("Activado"), default=False)
+
+    class Meta:
+        unique_together = ('number', 'book',)
+        verbose_name = "Capítulo"
+        verbose_name_plural = "Capítulos"
+
+    def clean(self):
+        b= BookByChapter.objects.get(id = self.book.id)
+        b2= Chapter.objects.exclude(id= self.id).filter(book=self.book).count()
+        if self.number > int(b.cant_chapter):
+            raise ValidationError('no puede usar este numero para el capitulo')
+        if b2 == b.cant_chapter:
+            raise ValidationError('El libro no puede contener mas capítulos')
+        if Chapter.objects.exclude(id=self.id).filter(book= self.book, number=self.number).exists():
+            raise ValidationError('Ese numero de capítulo ya fue usado por ese capítulo')
+
+    def publish(self):
+        self.save()
+        
+
+    def __str__(self):
+       
+        return ' Libro: %s . Capitulo titulado: %s y es el capitulo numero: %s' % (self.book, self.title, self.number)
+
+
 
 
 
 
 "-------LibroFavorito-------"
 class LibroFavorito(models.Model):
-    isbn = models.CharField( max_length=16, unique=True, validators =[validateIsbn, validateIsbnNum],)
+    isbn = models.CharField( max_length=16, validators =[validateIsbn, validateIsbnNum],)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="perfil",blank=True, null=True)
     book = models.ForeignKey(Libro, on_delete=models.CASCADE, verbose_name="libro",blank=True, null=True)
 
@@ -340,7 +395,7 @@ class LibroFavorito(models.Model):
 
 "-------LibroPorCapituloFavorito-------"
 class LibroPorCapituloFavorito(models.Model):
-    isbn = models.CharField( max_length=16, unique=True, validators =[validateIsbn, validateIsbnNum],)
+    isbn = models.CharField( max_length=16, validators =[validateIsbn, validateIsbnNum],)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="perfil",blank=True, null=True)
     book = models.ForeignKey(BookByChapter, on_delete=models.CASCADE, verbose_name="libro",blank=True, null=True)
 
@@ -356,6 +411,65 @@ class LibroPorCapituloFavorito(models.Model):
 
     def __str__(self):
         return self.isbn
+
+
+
+"-------Chapter-------"
+class Chapter(models.Model):    
+    book= models.ForeignKey(BookByChapter, on_delete=models.CASCADE, verbose_name="libro",) # validators=[libroLleno])
+    title= models.CharField(("Titulo del capítulo"), max_length=50, help_text="Ingrese el nombre del capítulo, en caso de no tenerlo, su numero de cap, esta información se mostrará al usuario")
+    number = models.IntegerField(("numero de capitulo"), validators=[numerolegal], help_text="este dato es solo para ordenar las busquedas internas, sepa que si un libro tiene dos capitulos y aquí pone 10 (en vez de 1) , no afectara al libro, pero en el orden se mostrara al final")
+    description = models.TextField(("Descripción del capítulo"), blank=True, null=True)
+    pdf = models.FileField(upload_to='pdf')
+    active = models.BooleanField(("Activado"), default=False)
+
+    class Meta:
+        unique_together = ('number', 'book',)
+        verbose_name = "Capítulo"
+        verbose_name_plural = "Capítulos"
+
+    def clean(self):
+        b= BookByChapter.objects.get(id = self.book.id)
+        b2= Chapter.objects.exclude(id= self.id).filter(book=self.book).count()
+        if self.number > int(b.cant_chapter):
+            raise ValidationError('no puede usar este numero para el capitulo')
+        if b2 == b.cant_chapter:
+            raise ValidationError('El libro no puede contener mas capítulos')
+        if Chapter.objects.exclude(id=self.id).filter(book= self.book, number=self.number).exists():
+            raise ValidationError('Ese numero de capítulo ya fue usado por ese capítulo')
+
+    def publish(self):
+        self.save()
+        
+
+    def __str__(self):
+       
+        return ' Libro: %s . Capitulo titulado: %s y es el capitulo numero: %s' % (self.book, self.title, self.number)
+
+
+
+"-------Capítulo Favorito-------"
+class CapituloFavorito(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="perfil",blank=True, null=True)
+    book = models.ForeignKey(BookByChapter, on_delete=models.CASCADE, verbose_name="libro",blank=True, null=True)
+    titulo_capitulo = models.CharField(('titulo'), max_length=50)
+    capitulo = models.ForeignKey(Chapter, on_delete=models.CASCADE)
+
+    def publish(self):
+        self.save()
+
+    def id(self):
+        return self.id
+
+    class Meta:
+        verbose_name = "Capitulo Leyéndose"
+        verbose_name_plural = "Capitulos Leyéndose"
+
+    def __str__(self):
+        return self.titulo_capitulo + "⠀del libro:⠀" +self.book.title 
+
+
+
 
 
 "-------Noticias-------"
@@ -406,45 +520,8 @@ class Trailer(models.Model):
             raise ValidationError("Debe adjuntar UN libro O UN libro por capitulo")
     
 
-def numerolegal(value):
-    if value == 0:
-        raise ValidationError('un capitulo no puede ser numero cero')
-    elif value < 0 :
-        raise ValidationError('un capitulo no puede tener un numero negativo')
-    else:
-        return value
 
-"-------Chapter-------"
-class Chapter(models.Model):    
-    book= models.ForeignKey(BookByChapter, on_delete=models.CASCADE, verbose_name="libro",) # validators=[libroLleno])
-    title= models.CharField(("Titulo del capítulo"), max_length=50, help_text="Ingrese el nombre del capítulo, en caso de no tenerlo, su numero de cap, esta información se mostrará al usuario")
-    number = models.IntegerField(("numero de capitulo"), validators=[numerolegal], help_text="este dato es solo para ordenar las busquedas internas, sepa que si un libro tiene dos capitulos y aquí pone 10 (en vez de 1) , no afectara al libro, pero en el orden se mostrara al final")
-    description = models.TextField(("Descripción del capítulo"), blank=True, null=True)
-    pdf = models.FileField(upload_to='pdf')
-    active = models.BooleanField(("Activado"), default=False)
 
-    class Meta:
-        unique_together = ('number', 'book',)
-        verbose_name = "Capítulo"
-        verbose_name_plural = "Capítulos"
-
-    def clean(self):
-        b= BookByChapter.objects.get(id = self.book.id)
-        b2= Chapter.objects.exclude(id= self.id).filter(book=self.book).count()
-        if self.number > int(b.cant_chapter):
-            raise ValidationError('no puede usar este numero para el capitulo')
-        if b2 == b.cant_chapter:
-            raise ValidationError('El libro no puede contener mas capítulos')
-        if Chapter.objects.exclude(id=self.id).filter(book= self.book, number=self.number).exists():
-            raise ValidationError('Ese numero de capítulo ya fue usado por ese capítulo')
-
-    def publish(self):
-        self.save()
-        
-
-    def __str__(self):
-       
-        return ' Libro: %s . Capitulo titulado: %s y es el capitulo numero: %s' % (self.book, self.title, self.number)
 
 #StateOfBook
 
@@ -607,20 +684,21 @@ def esCorrecto(value):
 
 class UpDownBook(models.Model):
     book = models.ForeignKey(Libro, verbose_name=("libro"), on_delete=models.CASCADE)
-    up_normal= models.DateField("pasar a normal", default= timezone.now(), validators=[esCorrecto])
-    expiration_normal= models.DateField("expiracion normal", default= timezone.now(), validators=[esCorrecto])
+    up_normal= models.DateField("programar publicación", default= timezone.now(), validators=[esCorrecto])
+    expiration_normal= models.DateField("programar expiración", default= timezone.now(), validators=[esCorrecto])
     up_premium= models.DateField("pasar a premium",default= timezone.now(), validators=[esCorrecto])
     expiration_premium= models.DateField("expiracion premium", default= timezone.now(), validators=[esCorrecto])   
 
     def clean(self):
         if (self.up_normal >= self.expiration_normal):
-            raise ValidationError('La fecha de baja no puede ser inferior a la de subida para normal o premium')
+            raise ValidationError('La fecha de baja no puede ser inferior a la de subida')
+        #
         if (self.up_premium >= self.expiration_premium):
-            raise ValidationError('La fecha de baja no puede ser inferior a la de subida para premium o normal')
+           raise ValidationError('La fecha de baja no puede ser inferior a la de subida')
 
     class Meta:
-        verbose_name = "Subir-Bajar-Libro"
-        verbose_name_plural = "Subir-Bajar-Libro"
+        verbose_name = "Programar publicación libro"
+        verbose_name_plural = "Programar publicación libros"
 
     def __str__(self):
         #boo= Book.objects.get(isbn=self.book)
@@ -628,20 +706,20 @@ class UpDownBook(models.Model):
     
 class UpDownBookByChapter(models.Model):
     book = models.ForeignKey(BookByChapter, verbose_name=("libro"), on_delete=models.CASCADE)
-    up_normal= models.DateField("pasar a normal", default= timezone.now(), validators=[esCorrecto])
-    expiration_normal= models.DateField("expiracion normal", default= timezone.now(), validators=[esCorrecto])
-    up_premium= models.DateField("pasar a premium",default= timezone.now(), validators=[esCorrecto])
-    expiration_premium= models.DateField("expiracion premium", default= timezone.now(), validators=[esCorrecto])    
+    up_normal= models.DateField("programar publicación", default= timezone.now(), validators=[esCorrecto])
+    expiration_normal= models.DateField("programar expiración", default= timezone.now(), validators=[esCorrecto])
+    #up_premium= models.DateField("pasar a premium",default= timezone.now(), validators=[esCorrecto])
+    #expiration_premium= models.DateField("expiracion premium", default= timezone.now(), validators=[esCorrecto])    
 
     class Meta:
-        verbose_name = "Subir-Bajar-LibroPorCapitulo"
-        verbose_name_plural = "Subir-Bajar-LibroPorCapitulo"
+        verbose_name = "Programar publicación libro por capítulo"
+        verbose_name_plural = "Programar publicación libros por capítulo"
 
     def clean(self):
         if (self.up_normal >= self.expiration_normal):
-            raise ValidationError('La fecha de baja no puede ser inferior a la de subida para normal o premium')
-        if (self.up_premium >= self.expiration_premium):
-            raise ValidationError('La fecha de baja no puede ser inferior a la de subida para premium o normal')
+            raise ValidationError('La fecha de baja no puede ser inferior a la de subida')
+        #if (self.up_premium >= self.expiration_premium):
+           # raise ValidationError('La fecha de baja no puede ser inferior a la de subida para premium o normal')
 
     def __str__(self):
         str(self.book)
@@ -657,8 +735,8 @@ class UpDownChapter(models.Model):
             raise ValidationError('La fecha de baja no puede ser inferior a la de subida')
     
     class Meta:
-        verbose_name = "Subir-Bajar-Capitulo"
-        verbose_name_plural = "Subir-Bajar-Capitulos"
+        verbose_name = "Programar publicación capítulo"
+        verbose_name_plural = "Programar publicación capítulos"
 
     def __str__(self):
         return str(self.chapter)
@@ -669,8 +747,8 @@ class UpDownNovedad(models.Model):
     up= models.DateField("DarDeAlta", default= timezone.now(), validators=[esCorrecto])
     expirationl= models.DateField("DarDeBaja", default= timezone.now(), validators=[esCorrecto])
     class Meta:
-        verbose_name = "Subir-Bajar-Publicacion"
-        verbose_name_plural = "Subir-Bajar-Publicaciones"
+        verbose_name = "Programar publicación de Novedad"
+        verbose_name_plural = "Programar publicación de Novedades"
 
     def clean(self):
         if (self.up >= self.expirationl):
@@ -684,8 +762,8 @@ class UpDownTrailer(models.Model):
     up= models.DateField("DarDeAlta", default= timezone.now(), validators=[esCorrecto])
     expirationl= models.DateField("DarDeBaja", default= timezone.now(), validators=[esCorrecto])
     class Meta:
-        verbose_name = "Subir-Bajar-Trailer"
-        verbose_name_plural = "Subir-Bajar-Trailer"
+        verbose_name = "Programar publicación de Trailer"
+        verbose_name_plural = "Programar publicación de Trailers"
     
     def clean(self):
         if (self.up >= self.expirationl):

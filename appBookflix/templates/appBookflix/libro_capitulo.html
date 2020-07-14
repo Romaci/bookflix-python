@@ -1,0 +1,180 @@
+{% load static %}
+{% with end_loop="True" %}
+<html>
+    <body>
+        
+        {% include "appBookflix/navbar.html" %}        
+        <div style= "margin: auto; margin: 50px;">
+            <div style="display: inline;">
+                <h2>{{libro.titulo}}</h2>
+                <img style="max-width:275px; max-height:275px;" src="{{libro.portada.url}}"  alt="fondo" > 
+                {# <button style="position: absolute;margin-left: 10;">Agregar a futuras lecturas</button> #}
+                
+                {# <button onclick="enviarPost( 'publicacion')" style="position: absolute;margin-top: 40;margin-left:10;">Leer Libro</button> #}
+                 
+                {#<embed style="width:300px; height:250px;" frameborder="0" id='pdf' src="{% static 'pdf/cmd.pdf' %}"></embed> #}                    {# % static 'pdf/cmd.pdf' % #}
+
+                {#<input id="submit" type="button" value="Click" href="/"/>      #}     
+            </div>  
+                     <p> Autor: {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
+                    <p> Sinopsis: {{libro.descripcion}} </p>
+                    <p> Editorial: {{libro.editorial.name}} </p>
+                    
+                    <p> Género(s): {%for genero in libro.genero.all %}
+                        | {{genero.nombre}} |
+
+                    {% endfor %}
+                    </p>
+                    <P>Puntuación: {{puntaje}}</P>
+                    {% if terminado %}
+                    <div> 
+                        <p> Le has dado: {{puntajeMio.points}}pts</p>
+                        <p> 
+                        <a> Puntuar: </a> 
+                        <a href="/puntuar/{{libro.isbn}}/porcapitulos/1"> 1pt </a> <a>-</a>
+                        <a href="/puntuar/{{libro.isbn}}/porcapitulos/2"> 2pt </a> <a>-</a>
+                        <a href="/puntuar/{{libro.isbn}}/porcapitulos/3"> 3pt </a> <a>-</a>
+                        <a href="/puntuar/{{libro.isbn}}/porcapitulos/4"> 4pt </a> <a>-</a>
+                        <a href="/puntuar/{{libro.isbn}}/porcapitulos/5"> 5pt </a> <a></a>
+                        </p>
+            
+            
+                    </div>
+                    
+                    {% endif %}
+                    <p>Capítulos:</p>
+                
+                    {% if request.session.lectura_otro_perfil == False %}
+                    
+                        {% for capitulo in capitulos %}
+                        {# {capitulo.title}} y {{favoritos.0.titulo_capitulo} #} 
+                            {% if capitulo in capitulos %}
+                             
+                            <br>
+                                [<a href="{{capitulo.pdf.url}}">{{capitulo.title}}⠀</a>||
+                                
+                                
+
+                                
+                                {% if favoritos %}
+                                
+                                {% for favorito in favoritos %}
+                                    
+                                    
+                                
+                                    {% if capitulo.title in favorito.titulo_capitulo %}
+                                    
+                                        <a style="margin-top:30px;margin-bottom: 30px;" href="/quitar_cap_favoritos/{{libro.isbn}}/{{capitulo.title}} "> Quitar de Favoritos</a>]
+                                        {#{  end_loop  }#}
+                                    {% elif forloop.last and not capitulo.title in favoritos.0.titulo_capitulo and not capitulo.title in favoritos.1.titulo_capitulo and not capitulo.title in favoritos.2.titulo_capitulo and not capitulo.title in favoritos.3.titulo_capitulo and not capitulo.title in favoritos.4.titulo_capitulo  and not capitulo.title in favoritos.5.titulo_capitulo  and not capitulo.title in favoritos.6.titulo_capitulo and not capitulo.title in favoritos.7.titulo_capitulo and not capitulo.title in favoritos.8.titulo_capitulo and not capitulo.title in favoritos.9.titulo_capitulo and not capitulo.title in favoritos.10.titulo_capitulo %}  {# % elif forloop.last  and not capitulo.title in favorito.titulo_capitulo  % #}
+                                        <a href="/agregar_cap_favoritos/{{libro.isbn}}/{{capitulo.title}}">Agregar a favoritos</a>]
+                                        
+                                    {% endif %}
+                                    
+                                {% endfor %}
+                            {% else %}
+                            
+                            <a href="/agregar_cap_favoritos/{{libro.isbn}}/{{capitulo.title}}">Agregar a favoritos]</a>
+                            {% endif %}
+
+                            
+
+
+                            {% endif %}
+                            
+
+                        {% endfor %}
+                        <br>
+                        {% if terminado == False  %}
+
+                            {% if comenzado == False  %}
+                               
+                                <a href="/agregar_a_leyendo_libro_cap/{{libro.isbn}}">Agregar a Leyendo</a>
+                                <br>
+                            {% else %}
+                            
+        
+                                <a href="/quitar_de_leyendo_libro_cap/{{libro.isbn}}">Quitar de leyendo</a>
+                                <br>
+                            {% endif %}
+
+                        {% endif %}  
+                        
+                        
+
+                    {% if agregar_favorito == True %}
+
+                        <div>
+                            <a style="margin-top:30px;margin-bottom: 30px;" href="/agregar_libro_cap_favoritos/{{libro.isbn}}"> Agregar a Favoritos</a>
+                        </div>
+
+                    {% else %}
+                    
+                        <a style="margin-top:30px;margin-bottom: 30px;" href="/quitar_libro_cap/{{libro.isbn}}"> Quitar de Favoritos]</a>
+                    
+                    {% endif %}
+                    {% else %}
+
+                        <p>Suba el plan</p>
+
+                    {% endif %}
+                        {% if terminado == False  %}                
+                            {% if agregar_futura_lectura == True %}        
+                                   
+                                    <a style="margin-top: 30px;" href="/agregar_futuras_lecturas_libro_cap/{{libro.isbn}}">Agregar a futuras lecturas</a>
+                                
+                                    <br>
+                            {% else %}
+                                
+                                    <a  href="/quitar_futuras_lecturas_libro_cap/{{libro.isbn}}">Quitar de futuras lecturas</a>
+                                    <br>
+                            {% endif %}
+                        {% endif %}    
+                        
+                           
+
+
+                        {% if  not terminado == True or not comenzado == True %}
+                            {% if not comenzado == True %}
+                                {% if agregar_futura_lectura == True and terminado == True %}
+                                    
+                                        <a style="margin-top:30px;margin-bottom: 30px;" href="/agregar_a_leyendo_libro_cap/{{libro.isbn}}"> Quitar de terminado</a>
+                                        <br>
+                                    
+                                {% endif %}
+                            {% else %}
+                                
+                                    <a style="margin-top:30px;margin-bottom: 30px;" href="/terminar_libro_cap/{{libro.isbn}}"> Terminar Libro</a>
+                                    <br>
+                                    
+                            {% endif %}
+                        {% else %}
+                        
+                    {% endif %}
+
+        </div>
+
+
+        </div>
+
+        <a href="/comentar/{{libro.isbn}}"> comentar</a>
+        <br>
+        <div> 
+
+
+        {% for coment in comentarios%}
+            
+            {% if coment.is_a_spoiler %}
+                <p> <a href="/verComentario/{{coment.id}}/libro"> ver</a> : El comentario no se muestra dado su grado de Spoilisidad, si quiere leerlo ente arriba</p>
+            {%else %}
+
+                <p> <a href="/verComentario/{{coment.id}}/libro"> ver</a>: {{coment.description |slice:":80" }} (...) </p>
+                <a href="/denunciarComentario/{{coment.id}}/{{libro.isbn}}"> denunciar comentario</a>
+            {% endif%}
+        
+
+        {%endfor%}
+               
+    </body>
+    {% endwith %}
+</html>

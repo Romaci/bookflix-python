@@ -1,0 +1,60 @@
+<html>
+    <style>
+        #publicaciones{
+            margin: 10;
+            border: 10px;
+            padding:70px;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        #publicaciones li{
+            display: inline;
+            margin-left: 15%;
+            border: 10px;
+        }
+        #libros{
+            margin: 10 10 10 10;
+            border: 10px 10px 10px 10px;
+            padding:70px;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        #libros li{
+            display: inline;
+            margin: 10px 10px 10px 10px;
+            border: 10px 10px 10px 10px ;
+        }
+        #libros div p{
+            display: inline;
+            margin-left: 1%;
+            border: 10px;
+        }
+
+    </style>
+<body>
+ 
+{% include "appBookflix/navbar.html" %}
+
+<ul id="libros">
+
+    <p> Libros más leídos</p>
+   {%for i in libros%}
+      <p>Titulo: {{i.libro.titulo}} || Leído {{i.cantidad}} veces   ||
+         <a href="/admin/bookflix/book/{{i.libro.id}}/change"> </a>
+      </p>
+   {%endfor%}
+   <p>-------------------------------------------------------------------</p>
+   <p>Libros Por Capítulo más leídos</p>
+   {%for i in librosCap %}
+      <p>Titulo: {{i.libro.title}}  cantidad de veces leído: {{i.cantidad}}    | 
+         <a href="/admin/bookflix/bookbychapter/{{i.libro.id}}/change"> </a>
+      </p>
+   {%endfor%}
+  
+
+</ul>
+ <hr>
+
+
+</body>
+</html>

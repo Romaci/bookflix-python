@@ -1,0 +1,31 @@
+<html>
+    {% include "appBookflix/navbar.html" %}
+    {% if request.session.solicitud == "0" %}
+        <p>Usted ya tiene una solicitud pendiente</p>
+    {% else %}
+    <body>
+        <p></p>
+        <p>Precios </p>
+        <p> Free: $000 al mes (pero no podes leer nada)</p>
+        <p> Normal: $XXX al mes (y podes leer pero no todo)</p>
+        <p> Premium: $YYY al mes (lee lo que quieras)</p>
+
+    </body>
+
+    <p style=color:blue>{{ request.session.ErrorSolicitudCambio}}</p>
+
+    <form method="POST"> {% csrf_token %}
+    
+        {{ solicitud }} 
+
+       
+    <input type="submit" value="SolicitarCambio">  
+    
+    
+    
+        
+    </form>
+    {%endif%}
+    <a href="/perfil">volver</a>  
+    
+</html>
