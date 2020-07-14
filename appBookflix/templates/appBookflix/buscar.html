@@ -9,15 +9,17 @@
           <h6>por título, autor, editorial o género</h6>
       </div>
       </div>
-<form method="post" input class="form-control" id="listSearch" type="text" placeholder="" >
+<div>
+<form method="post" input class="form-control" id="listSearch" type="text" placeholder="" style="height: fit-content !important;">
     {% csrf_token %}
 
 {%for field in form%}
   {{field.label_tag}}
   {{field}}
 {%endfor%}
-    <button type="submit">Buscar</button>
+<button class="btn btn-dark" type="submit">Buscar</button>
   </form>
+</div>
 
 <table class="table table-bordered">
     <tr>
