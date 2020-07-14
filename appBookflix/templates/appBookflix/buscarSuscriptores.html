@@ -11,23 +11,29 @@
 </form>
 
  
-<table>
-    <tr>
-      <td class="first">
 
-        <p>Suscriptores:</p>
+
+<table id="example" class="table table-striped table-bordered" style="width:100%">
+ <p>Suscriptores:</p>
           {% if suscriptores%}
-            {%for suscriptor in suscriptores%}
-              <p> {{ suscriptor.username}} </a> <br> Fecha de suscripción: {{suscriptor.date_joined}} <br>
-              
-              </p>
-            {%endfor %}
+        <thead>
+            <tr>
+                <th>Nombre de usuario</th>
+                <th>Email</th>
+                <th>Fecha de suscripción</th>
+                <th>Plan</th>
+                <th>Última actividad</th>
+            </tr>
+        </thead>
+         {% for suscriptor in suscriptores%}
+        <tbody>
+            <tr>
+                <td>{{ suscriptor.username}}</td>
+                <td>{{suscriptor.email}}</td>
+                <td>{{suscriptor.date_joined}}</td>
+                <td>{{suscriptor.plan}}</td>
+                <td>{{suscriptor.last_login}}</td>
+            </tr>
+           {%endfor %}
           {%endif%}
-      </td>
-      <td>
-
-      
-    
-    </tr>
-</table>
-
+        </table>
