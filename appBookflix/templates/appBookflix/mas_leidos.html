@@ -1,60 +1,78 @@
-<html>
-    <style>
-        #publicaciones{
-            margin: 10;
-            border: 10px;
-            padding:70px;
-            list-style: none;
-            text-transform: uppercase;
-        }
-        #publicaciones li{
-            display: inline;
-            margin-left: 15%;
-            border: 10px;
-        }
-        #libros{
-            margin: 10 10 10 10;
-            border: 10px 10px 10px 10px;
-            padding:70px;
-            list-style: none;
-            text-transform: uppercase;
-        }
-        #libros li{
-            display: inline;
-            margin: 10px 10px 10px 10px;
-            border: 10px 10px 10px 10px ;
-        }
-        #libros div p{
-            display: inline;
-            margin-left: 1%;
-            border: 10px;
-        }
 
-    </style>
-<body>
- 
+
+
+
+{% load static %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
 {% include "appBookflix/navbar_home.html" %}
 
-<ul id="libros">
 
-    <p> Libros más leídos</p>
-   {%for i in libros%}
-      <p>Titulo: {{i.libro.titulo}} || Leído {{i.cantidad}} veces   ||
-         <a href="/admin/bookflix/book/{{i.libro.id}}/change"> </a>
-      </p>
-   {%endfor%}
-   <p>-------------------------------------------------------------------</p>
-   <p>Libros Por Capítulo más leídos</p>
+<div class="container py-5">
+
+<table id="example" class="table table-striped table-bordered" style="width:100%">
+<br>
+
+          
+           <h2>Libros más leídos</h2>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Género</th>
+                <th>Editorial</th>
+                <th>Cantidad de veces leído</th>
+            </tr>
+        </thead>
+         {% for i in libros%}
+        <tbody>
+            <tr>
+                <td>{{i.libro.titulo}}</td>
+                <td>{{i.libro.autor}}</td>
+                <td>{{i.libro.genero}}</td>
+                <td>{{i.libro.editorial}}</td>
+                <td>{{i.cantidad}}</td>
+            </tr>
+           {%endfor %}
+          
+        
+        </table>
+
+
+
+
+        <table id="example" class="table table-striped table-bordered" style="width:100%">
+<br>
+
+          
+           <h2>Libros Por Capítulo más leídos</h2>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Editorial</th>
+                <th>Cantidad de veces leído</th>
+            </tr>
+        </thead>
+         {% for i in librosCap%}
+        <tbody>
+            <tr>
+                <td>{{i.libro.title}} </td>
+                <td>{{i.libro.author}}</td>
+                <td>{{i.libro.editorial}}</td>
+                <td>{{i.cantidad}}</td>
+            </tr>
+           {%endfor %}
+          
+        
+        </table>
+
+
+ <p>Libros Por Capítulo más leídos</p>
    {%for i in librosCap %}
       <p>Titulo: {{i.libro.title}}  cantidad de veces leído: {{i.cantidad}}    | 
          <a href="/admin/bookflix/bookbychapter/{{i.libro.id}}/change"> </a>
       </p>
    {%endfor%}
-  
 
-</ul>
- <hr>
-
-
-</body>
-</html>
