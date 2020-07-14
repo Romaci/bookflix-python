@@ -1,6 +1,10 @@
 {% include "appBookflix/navbar_home.html" %}
 
-<form method="post">
+
+
+<div class="container">
+
+<form method="post" input class="form-control" id="listSearch" type="text" placeholder="" >
     {% csrf_token %}
 
 {%for field in form%}
@@ -10,29 +14,44 @@
     <button type="submit">Buscar</button>
   </form>
 
-<table>
+<table class="table table-bordered">
     <tr>
-      <td class="first">
+     <thead>
+    <tr>
+      
+      <th scope="col">Libros completos</th>
+      <th scope="col">Libros por capítulos</th>
+    </tr>
+    </thead>
 
-        <p>Libros:</p>
-          {% if libros%}
+    <tbody>
+    <tr>
+     
+      <td>
+       {% if libros%}
             {%for libro in libros%}
-              <p> <a href="/leer_libro/{{libro.isbn}}"> {{ libro.titulo}} </a> <br> Autor: {{libro.autor}}, editorial: {{libro.editorial}} <br>
-              generos: {%for gen in libro.genders.all%} {{gen.name}} , {% endfor%}
+           
+              <p><li class="list-group-item"> <a href="/leer_libro/{{libro.isbn}}"> {{ libro.titulo}} </a> <br> Autor: {{libro.autor}}, editorial: {{libro.editorial}} <br>
+              generos: {%for gen in libro.genders.all%} {{gen.name}} , {% endfor%} </li>
               </p>
             {%endfor %}
           {%endif%}
+      
       </td>
       <td>
-
-        <p>Libros Por Capitulo:</p>
-          {% if librosCap%}
+           {% if librosCap%}
             {%for libro in librosCap%}
-            <p> <a href="/libro_capitulo/{{libro.isbn}}"> {{ libro.title}} </a> <br> Autor: {{libro.author}}, editorial: {{libro.editorial}} <br>
-              generos: {%for gen in libro.genders.all%} {{gen.name}} , {% endfor%}
+            <p><li class="list-group-item"> <a href="/libro_capitulo/{{libro.isbn}}"> {{ libro.title}} </a> <br> Autor: {{libro.author}}, editorial: {{libro.editorial}} <br>
+              generos: {%for gen in libro.genders.all%} {{gen.name}} , {% endfor%}</li>
               </p>
             {%endfor %}
           {%endif%}
+      
       </td>
-    </tr>
+     
+    
 </table>
+</div>
+
+
+

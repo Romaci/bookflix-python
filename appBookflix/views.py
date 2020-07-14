@@ -316,6 +316,37 @@ def cambiar_email(request):
     return render(request, "appBookflix/cambiar_email.html", context)
 
 
+
+def cambiar_nombre(request,nombre):
+    context={}
+    request.session['ErrorDePerfil'] = "1"
+    request.session.modified = True
+    perfil_anterior = Profile.objects.get(name= nombre, account=request.user)
+    if request.POST:
+        form= CrearPerfil(request.POST, instance= perfil_anterior)
+        if form.is_valid():
+            try:
+                p= Profile.objects.get(name= form.cleaned_data['name'], account=request.user)
+                request.session['ErrorDePerfil'] = "2"
+                request.session.modified = True
+            except Profile.DoesNotExist:
+                perfil_anterior= form.save(commit=False)
+                perfil_anterior.account = request.user
+                perfil_anterior.save()
+                return redirect ('/select_perfil')
+    
+    form=CrearPerfil()
+    context["profile_creation_form"]=form
+    return render(request, 'appBookflix/cambiar_nombre.html', context)
+
+
+
+#NOTICIAS
+
+def noticias(request):
+    noticia=Novedad.objects.filter(mostrar_en_home=True)
+    return render(request, "appBookflix/noticias.html",{'noticias':noticia, })
+
 #COMENTARIOS
 
 
