@@ -1,39 +1,73 @@
-<html>
-    <body>
-        {% include "appBookflix/navbar_home.html" %}
-        {% if sesion.nombrePerfil %}
-        <h1>Historial de lecturas de {{sesion.nombrePerfil}} </h1> <!--ACÁ SE PODRÍA METER EL UN HIPERVINCULO EL NOMBRE-->
-            {% if historial_libros %}
-            {% for estado in historial_libros %}
-                {% if estado.profile.name == sesion.nombrePerfil %}   
-                    <li style="display:inline-block; margin: 20px;">
-                        <div>
-                            <h3>El perfil {{estado.profile}} terminó el libro: {{estado.book}} </h3>
-                            <br>
-                            <img style="max-width:275px; max-height:275px;" src="{{estado.book.portada.url}}"  alt="fondo" > 
-                        </div>
-                        <br>
-                    </li>
-                {% endif %}
-            {% endfor %}
 
-            {% if historial_libros_cap %}
-            {% for estado in historial_libros_cap %}
-                {% if estado.profile.name == sesion.nombrePerfil %}
-                    <li style="display:inline-block; margin: 20px;">
-                        <div>
-                            <h3>El perfil {{estado.profile}} terminó el capítulo: {{estado.book}}</h3>
-                            <br>
-                            <img style="max-width:275px; max-height:275px;" src="{{estado.book.portada.url}}"  alt="fondo" > 
-                        </div>
-                        <br>
-                    </li>
-                {% endif %}
-            {% endfor %}
-            {% else %}
-            <p>Aún no tiene ningún libro en historial</p>
-            {% endif %}
-            {% endif %}
-        {% endif %}
-    </body>
-</html>
+{% include "appBookflix/navbar_home.html" %}
+
+<div class="container py-5">
+
+{% if historial_libros %}
+<div center>
+<h1>Todos los libros que leí</h1>
+</div>  
+<br>
+<br>
+{% for estado in historial_libros %}
+    {% if estado.profile.name == sesion.nombrePerfil %}  
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+
+      <!-- List group-->
+      <ul class="list-group shadow">
+
+        <!-- list group item-->
+        <li class="list-group-item">
+          <!-- Custom content-->
+          
+          <div class="media align-items-lg-center flex-column flex-lg-row p-1">
+            <div class="media-body order-2 order-lg-1">
+              <h5 class="mt-0 font-weight-bold mb-2"> {{estado.book}}</h5>
+              <p class="font-italic text-muted mb-0 small">{{estado.book.descripcion}}</p>
+              <div class="d-flex align-items-center justify-content-between mt-1">
+                 <p> Autor: {{estado.book.autor.nombre}}, {{estado.book.autor.apellido}} </p>
+                                     <p> Género: {%for genero in estado.book.genero.all %}
+                                          | {{genero.nombre}} |
+
+                                                {% endfor %}
+                                       </p>
+                <ul class="list-inline small">
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star-o text-gray"></i></li>
+                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star-o text-gray"></i></li>
+                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star-o text-gray"></i></li>
+                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star-o text-gray"></i></li>
+                </ul>
+              </div>
+            </div><img src="{{estado.book.portada.url}}" alt="Generic placeholder image" width="200" class="ml-lg-5 order-1 order-lg-2">
+              
+          </div>
+          <!-- End -->
+        </li>
+        <!-- End -->
+      </ul>
+      <!-- End -->
+    </div>
+  </div>
+  <br>
+   {% endif %}
+  {% endfor %}
+{% endif %}
+</div>
+</div>

@@ -1,69 +1,69 @@
 {% load static %}
-
+ 
 <html>
-
+ 
 <body>{% include "appBookflix/navbar.html" %}
-  {% if not request.user.is_admin  and  request.user.is_active %}
-    
-    {% if request.user.plan == "free" or request.user.plan == "normal" %}
-      {% if perfiles|length > 0 %}
-        <div class="card-group" style="padding-top: 50px;">
-        {% for perfil in perfiles %}
-          <div class="card text-center" style="border:0px">
-          <a href="/perfil_seleccionado/{{perfil.id}}">
-          <img class="card-img-top" src="{% static '/images/per1.jpg' %}" alt="logo" style="width: 180px;display:flex;margin:0 auto;"></a>
-        <div class="card-body">
-        <h5 class="card-title"> <a style="margin: 10;" href="/perfil_seleccionado/{{perfil.id}}">{{perfil.name}}</a></h5>
-        <p class="card-text"><a style="font-size: 15px; margin-right: 15px;"
-            href="/cambiar_nombre/{{perfil.name}}">Cambiar Nombre</a> | <a style="font-size: 15px; margin-left: 15px;"
-            href="/borrar_perfil/{{perfil.name}}">Borrar Perfil</a></p>
-        </div>
-        </div>
-        {% endfor %}
-        
-      {% endif %}
-      {% if perfiles|length < 2 %}
-        <div class="card text-center" style="border:0px">
-          <a href="/crear_perfil/"><img class="card-img-top" src="{% static '/images/add.jpg' %}" alt="logo" style="width: 180px;display:flex; margin:0 auto;"></a>
-          <div class="card-body">
-            <p class="card-text"><a style="font-size: 15px; margin-right: 15px;" href="/crear_perfil/">Crear Perfil</a></p>
-          </div>
-        </div>
-      {% endif %}
-    {% else %}
-      {% if request.user.plan == "premium" %}
-        {% if perfiles|length > 0 %}
-          <div class="card-group" style="padding-top: 50px;">
-          {% for perfil in perfiles %}
-            <div class="card text-center" style="border:0px">
-              <a href="/perfil_seleccionado/{{perfil.id}}">
-              <img class="card-img-top" src="{% static '/images/per1.jpg' %}" alt="logo" style="width: 180px;display:flex;margin:0 auto;"></a>
-              <div class="card-body">
-                  <h5 class="card-title"> <a style="margin: 10;" href="/perfil_seleccionado/{{perfil.id}}">{{perfil.name}}</a></h5>
-                  <p class="card-text"><a style="font-size: 15px; margin-right: 15px;"href="/cambiar_nombre/{{perfil.name}}">Cambiar Nombre</a> | <a style="font-size: 15px; margin-left: 15px;"href="/borrar_perfil/{{perfil.name}}">Borrar Perfil</a></p>
-              </div>
-          </div>
-          {% endfor %}
-        {% if perfiles|length < 4 %}
-            <div class="card text-center" style="border:0px">
-                <a href="/crear_perfil/"><img class="card-img-top" src="{% static '/images/add.jpg' %}" alt="logo" style="width: 180px;display:flex; margin:0 auto;"></a>
-                <div class="card-body">
-                  <p class="card-text"><a style="font-size: 15px; margin-right: 15px;" href="/crear_perfil/">Crear Perfil</a></p>
-                </div>
-            </div>
-        {% endif %}
-      </div>
-      {% endif %}
-      {% endif %}
-      {% endif %}
-      {% else %}
-      <div class="row" style="margin: 50px">
-        <div class="col">
-        <a href="/home" class="btn btn-secondary btn-lg"> ir a Home de Perfil</a>
-        </div>
-    </div> 
-      {% endif %}
+ {% if not request.user.is_admin  and  request.user.is_active %}
+  
+   {% if request.user.plan == "free" or request.user.plan == "normal" %}
+     {% if perfiles|length > 0 %}
+       <div class="card-group" style="padding-top: 50px;">
+       {% for perfil in perfiles %}
+         <div class="card text-center" style="border:0px">
+         <a href="/perfil_seleccionado/{{perfil.id}}">
+         <img class="card-img-top" src="{% static '/images/per1.jpg' %}" alt="logo" style="width: 180px;display:flex;margin:0 auto;"></a>
+       <div class="card-body">
+       <h5 class="card-title"> <a style="margin: 10;" href="/perfil_seleccionado/{{perfil.id}}">{{perfil.name}}</a></h5>
+       <p class="card-text"><a style="font-size: 15px; margin-right: 15px;"
+           href="/cambiar_nombre/{{perfil.name}}">Cambiar Nombre</a> | <a style="font-size: 15px; margin-left: 15px;"
+           href="/borrar_perfil/{{perfil.name}}">Borrar Perfil</a></p>
+       </div>
+       </div>
+       {% endfor %}
+      
+     {% endif %}
+     {% if perfiles|length < 2 %}
+       <div class="card text-center" style="border:0px">
+         <a href="/crear_perfil/"><img class="card-img-top" src="{% static '/images/add.jpg' %}" alt="logo" style="width: 180px;display:flex; margin:0 auto;"></a>
+         <div class="card-body">
+           <p class="card-text"><a style="font-size: 15px; margin-right: 15px;" href="/crear_perfil/">Crear Perfil</a></p>
+         </div>
+       </div>
+     {% endif %}
+   {% else %}
+     {% if request.user.plan == "premium" %}
+       {% if perfiles|length > 0 %}
+         <div class="card-group" style="padding-top: 50px;">
+         {% for perfil in perfiles %}
+           <div class="card text-center" style="border:0px">
+             <a href="/perfil_seleccionado/{{perfil.id}}">
+             <img class="card-img-top" src="{% static '/images/per1.jpg' %}" alt="logo" style="width: 180px;display:flex;margin:0 auto;"></a>
+             <div class="card-body">
+                 <h5 class="card-title"> <a style="margin: 10;" href="/perfil_seleccionado/{{perfil.id}}">{{perfil.name}}</a></h5>
+                 <p class="card-text"><a style="font-size: 15px; margin-right: 15px;"href="/cambiar_nombre/{{perfil.name}}">Cambiar Nombre</a> | <a style="font-size: 15px; margin-left: 15px;"href="/borrar_perfil/{{perfil.name}}">Borrar Perfil</a></p>
+             </div>
+         </div>
+         {% endfor %}
+       {% if perfiles|length < 4 %}
+           <div class="card text-center" style="border:0px">
+               <a href="/crear_perfil/"><img class="card-img-top" src="{% static '/images/add.jpg' %}" alt="logo" style="width: 180px;display:flex; margin:0 auto;"></a>
+               <div class="card-body">
+                 <p class="card-text"><a style="font-size: 15px; margin-right: 15px;" href="/crear_perfil/">Crear Perfil</a></p>
+               </div>
+           </div>
+       {% endif %}
+     </div>
+     {% endif %}
+     {% endif %}
+     {% endif %}
+     {% else %}
+     <div class="row" style="margin: 50px">
+       <div class="col">
+       <a href="/home" class="btn btn-secondary btn-lg"> ir a Home de Perfil</a>
+       </div>
+   </div>
+     {% endif %}
 </body>
-
-
+ 
+ 
 </html>

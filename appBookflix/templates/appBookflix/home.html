@@ -8,7 +8,7 @@
 
 {% if request.session.nombrePerfil %}
 <!-- ---Ultimas noticias--- -->
-<div class="container" style="height: 500;-webkit-box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);
+<div class="container-fluid" style="height: 700px;-webkit-box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);
 -moz-box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);
 box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75); margin-bottom: 30px; margin-top: 30px;">
     <div class="row">
@@ -40,40 +40,36 @@ box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75); margin-bottom: 30px; margin-top:
 </div>
 
 
+ 
+ 
 <!-- ---Group cards recomendaciones---- -->
-
-<div class="container" style="background-color:white; height: 550px;-webkit-box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);
--moz-box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);
-box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75); justify-content: center;">
-    <div class="row">
-        <div class="col text-left" style="margin: 50px;">
-            <h3>Recomendaciones personalizadas de Libros</h3>
-        </div>
-        </div>
-      <div class="container" style="height: 500px;">
-    <div class="row" >
-        
-        <div class="card-group">
-          {%for libro in recomendacion%}
-            <div class="col-4">
-            <div class="card" style="background-color: rgba(0, 0, 0, 0); border: none;">
-              <img class="card-img-top" src="{{libro.portada.url}}" alt="Card image cap" style=" width: auto;
-              height: 15vw;">
-              <div class="card-body">
-                <h6 class="card-title"><a href="/leer_libro/{{libro.isbn}}">  {{libro.titulo}} </a> </h6>
-                <p class="card-text"> 
-                Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} 
-                <br> Editorial: {{libro.editorial}} 
-                <br>Género(s): {%for genero in libro.genero.all %}
-                            |{{genero.nombre}} 
-                          {% endfor %}
-                </p>
-            </div>
-            </div>
-            </div>  
-            {%endfor%}
-          </div>
-          </div>
+ 
+<div class="container-fluid">
+   <div class="row">
+       <div class="col text-left" style="margin: 50px;">
+           <h3>Recomendaciones personalizadas de Libros</h3>
+       </div>
+   </div>
+   <div class="row">
+     {%for libro in recomendacion%}
+     <div class="col-4">
+     <div class="card" style="width:200px">
+       <img class="card-img-top"  src="{{libro.portada.url}}" alt="Card image cap">
+       <div class="card-body">
+         <h6 class="card-title"><a href="/leer_libro/{{libro.isbn}}">  {{libro.titulo}} </a> </h6>
+         <p class="card-text">
+           Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}}
+           <br> Editorial: {{libro.editorial}}
+           <br>Género(s): {%for genero in libro.genero.all %}
+                       |{{genero.nombre}}
+                     {% endfor %}
+           </p>
+       </div>
+     </div>
+   </div>
+     {%endfor%}
+</div>
+</div>
           
     </div>
     
@@ -84,7 +80,51 @@ box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75); justify-content: center;">
 {% endif %}
 
 
+{% if request.user.is_admin %}
+    <div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div class="bg-light border-right" id="sidebar-wrapper">
+     
+      <div class="list-group list-group-flush">
+        <a href="/home" class="list-group-item list-group-item-action bg-light">Home</a>
+        <a href="/trailers" class="list-group-item list-group-item-action bg-light">Trailers</a>
+        <a href="/buscarSuscriptores" class="list-group-item list-group-item-action bg-light">Buscar suscriptores</a>
+        <a href="/mas_leidos" class="list-group-item list-group-item-action bg-light">Libros más leídos</a>
+        <a href="/noticias" class="list-group-item list-group-item-action bg-light">Noticias</a>
+        <a href="/logout" class="list-group-item list-group-item-action bg-light">Cerrar Sesión</a>
+      </div>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    
+
+      <div class="container-fluid">
+        <h1 class="mt-4" class=center>Área de trabajo del administrador</h1>
+        
+      </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Menu Toggle Script -->
+  <script>
+    $("#menu-toggle").click(function(e) {
+      e.preventDefault();
+      $("#wrapper").toggleClass("toggled");
+    });
+  </script>
+  {% endif %}
+
 
 </body>
     
 </html>
+
+

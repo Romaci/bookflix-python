@@ -1,31 +1,26 @@
-
-{% load static %}
-{% load bootstrap4 %}
-{% bootstrap_css %}
-{% bootstrap_javascript jquery='full' %}
 <html>
 <body>
 {% if request.user.is_active %}
 {% include "appBookflix/navbar.html" %}
 <div class="container-fluid">
 <div class="row">
-    <div class="col alert alert-info">
-        <strong>Usted ya está logueado</strong> ¿Desea entrar con otra cuenta? entrar <a href="/logout" class="alert-link">aquí</a>
-    </div>
+   <div class="col alert alert-info">
+       <strong>Usted ya está logueado</strong> ¿Desea entrar con otra cuenta? entrar <a href="/logout" class="alert-link">aquí</a>
+   </div>
 </div>
-{% if  request.user.is_admin %}
+{% if request.user.is_admin %}
 <div class="row">
-    <div class="col">
-    <a href="/home" class="btn btn-secondary btn-lg"> ir a Home de Perfil</a>
-    </div>
-</div> 
+   <div class="col">
+   <a href="/home" class="btn btn-secondary btn-lg"> Ir a área de trabajo del administrador</a>
+   </div>
+</div>
 {% endif %}
 {% if not request.user.is_admin %}
 <div class="row">
-    <div class="col">
-    <a href="/select_perfil" class="btn btn-secondary btn-lg"> ir a Seleccionar Perfil</a>
-    </div>
-</div> 
+   <div class="col">
+   <a href="/select_perfil" class="btn btn-secondary btn-lg"> ir a Seleccionar Perfil</a>
+   </div>
+</div>
 {% endif %}
 </div>
 {% else %}
@@ -33,29 +28,29 @@
 <div class="row row justify-content-center align-items-center minh-100" style="margin-top: 50px;">
 <div class=".col-md-6 .offset-md-3">
 <div class="card text-center">
-    <div class="card-header">
-       <h3> Iniciar sesión </h3>
-    </div>
-    <div class="card-body text-right" >
-    <form method="POST">
-        <div class="form-group">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div class="text-center">
-            <button class="btn btn-dark" type="submit">Iniciar sesión</button>
-            <a class="btn btn-dark" href="/">Cancelar</a>
-            </div>
-        </div>
-    </form>
-    </div>
-    <div class="card-footer text-muted">
-    <a href="/register_page">Registrarse</a>            
-    <!-- SI QUEDA TIEMPO SE IMPLEMENTA -->
-    <!-- <a href="/recuperarCuenta">Olvidaste tu Contrasena?</a> --> 
-    </div>
+   <div class="card-header">
+      <h3> Iniciar sesión </h3>
+   </div>
+   <div class="card-body text-right" >
+   <form method="POST">
+       <div class="form-group">
+           {% csrf_token %}
+           {{ form.as_p }}
+           <div class="text-center">
+           <button class="btn btn-dark" type="submit">Iniciar sesión</button>
+           <a class="btn btn-dark" href="/">Cancelar</a>
+           </div>
+       </div>
+   </form>
+   </div>
+   <div class="card-footer text-muted">
+   <a href="/register_page">Registrarse</a>           
+   <!-- SI QUEDA TIEMPO SE IMPLEMENTA -->
+   <!-- <a href="/recuperarCuenta">Olvidaste tu Contrasena?</a> -->
+   </div>
 </div>
 </div>
 </div>
 {% endif %}
-</body>  
+</body> 
 </html>

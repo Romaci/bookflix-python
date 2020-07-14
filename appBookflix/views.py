@@ -33,6 +33,12 @@ def landing_view (request):
     context['libros']=libros
     return render(request, "appBookflix/landingPage.html", context)
 
+def homeAdmin (request):
+    context = {}
+    #libros = Libro.objects.all()
+    #context['libros']=libros
+    return render(request, "appBookflix/homeAdmin.html")
+
 
 def welcome(request):
     context={}
