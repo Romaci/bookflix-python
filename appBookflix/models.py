@@ -126,6 +126,11 @@ class CreditCards(models.Model):
 
     def __str__(self):
         return self.card_name
+    
+    def ult4(self):
+        mystr = str(self.number)
+         
+        return mystr[-4:]
 
     class Meta:
         verbose_name = "Tarjeta"

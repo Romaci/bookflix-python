@@ -110,7 +110,7 @@ def register_page(request):
             tarjeta= CreditCards(number=numT, cod=codT, date_expiration=dateT, card_name=cardName, bank=bankT, user=cuenta)
             tarjeta.save()
             
-            return redirect('login')
+            return redirect('logout')
         else:
             context["user_creation_form"]=form
             context["creacion_tarjeta"]= formCard
@@ -138,6 +138,14 @@ def perfil(request):
 def select_perfil(request):
     perfiles = Profile.objects.filter(account = request.user)
     return render(request, "appBookflix/select_perfil.html", {'perfiles': perfiles,}) #"tarjetaActual": tarjetaActual, "perfilActual":perfilActual})
+
+def datos_personales(request):
+    context = {} 
+    perfiles = Profile.objects.filter(account = request.user)
+    t= CreditCards.objects.get(user= request.user)
+    context["tarjeta"]=t
+    context["perfiles"]=perfiles
+    return render(request, "appBookflix/datos_personales.html", context)
 
 
 
@@ -193,7 +201,7 @@ def logout(request):
     # Finalizamos la sesión
     do_logout(request)
     # Redireccionamos al login
-    return redirect('/login')
+    return redirect('/')
 
 
 
@@ -308,6 +316,28 @@ def cambiar_email(request):
     return render(request, "appBookflix/cambiar_email.html", context)
 
 
+
+def cambiar_nombre(request,nombre):
+    context={}
+    request.session['ErrorDePerfil'] = "1"
+    request.session.modified = True
+    perfil_anterior = Profile.objects.get(name= nombre, account=request.user)
+    if request.POST:
+        form= CrearPerfil(request.POST, instance= perfil_anterior)
+        if form.is_valid():
+            try:
+                p= Profile.objects.get(name= form.cleaned_data['name'], account=request.user)
+                request.session['ErrorDePerfil'] = "2"
+                request.session.modified = True
+            except Profile.DoesNotExist:
+                perfil_anterior= form.save(commit=False)
+                perfil_anterior.account = request.user
+                perfil_anterior.save()
+                return redirect ('/select_perfil')
+    
+    form=CrearPerfil()
+    context["profile_creation_form"]=form
+    return render(request, 'appBookflix/cambiar_nombre.html', context)
 
 
 #COMENTARIOS

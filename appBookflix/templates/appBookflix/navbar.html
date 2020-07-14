@@ -1,55 +1,33 @@
 {% load static %}
-{% load static%}
 {% load bootstrap4 %}
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
-<!-- _____NAVBAR VIEJO_____-->
-<!-- 
-<nav class="navbar navbar-dark bg-dark">
-  <a class="navbar-brand" href="#">
-    <img src={% static '/images/bookflix.png' %} alt="logo" width="" height="">
-  </a>
-  {% if request.user.is_active %}
-    <ul>
-      <li style="padding: 2px 7px 2px 7px;color: #666;background-color: #eeeeee;border: 1px solid #ccc;text-decoration: none;border-radius: 10px 10px 10px 10px;margin-right: 30px;">¡Hola!: {{request.user.username}}</li>
-      <li><a href="/perfil">Cuenta</a></li>     
-      <li><a href="/home ">Home</a></li>
-      <li><a href="/publicaciones">Noticias</a></li>
-      <li><a href="/logout">Cerrar Sesion</a></li>
-      <li><a href="/trailers">Trailers</a></li>
-      <li><a href="/select_perfil">Perfiles</a></li>
-      {% if request.user.is_admin %}
-      <li><a href="/solicitudes">Solicitudes</a></li>
-      <li><a href="/historial">Historial</a></li>
-      {% else %}
-        <li><a href="/solicitar_cambio">Solicitar Cambio</a></li>
-        <li><a href="/historial">Historial</a></li>
-      {% endif %}
-        </ul>
-      {% else %}
-       <ul>
-         <li> <a href="/register_page">Registrarme</a> | <a href="/login">Login</a></li></li>
-      </ul>
-      {% endif %}
-</nav> 
--->
+
 
 <!-- Bootstrap NavBar ____NUEVO____ -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-   <a class="navbar-brand" href="#">
-      <img src={% static '/images/bookflix.png' %} alt="logo" width="" height="">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+   <a class="navbar-brand" href="/">
+      <img src="{% static '/images/bookflix.png' %}" alt="logo" width="" height="">
     </a>
    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
      <span class="navbar-toggler-icon"></span>
    </button>
    {% if not request.user.is_admin  and request.user.is_active %} <!--SI NO ES UN ADMIN, MUESTRA TODO ESTO-->
     <div class="collapse navbar-collapse" id="navbarNav">
-     
        <li class="nav-item active">
          <a class="nav-link" href="/home ">Home <span class="sr-only">(current)</span></a>
        </li>
        <li class="nav-item">
-        <a class="nav-link" href="/perfil">Cuenta</a>
+        <a class="nav-link" href="/select_perfil">Perfiles</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Cuenta
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="/datos_personales">Datos personales</a>
+          <a class="dropdown-item" href="/solicitar_cambio">Solicitud Cambio de Plan</a>
+        </div>
       </li>
        <li class="nav-item">
          <a class="nav-link" href="/publicaciones">Noticias</a>
@@ -100,14 +78,14 @@
 
    {% if not request.user.is_active %}
    <div class="collapse navbar-collapse" id="navbarNav">
-      
-         <li class="nav-item active"> 
-            <a class="nav-link" href="/register_page">Registrarme</a> 
+      <ul class="navbar-nav ml-auto">
+         <li class="nav-item "> 
+            <a class="nav-link" href="/register2">Registrarme</a> 
          </li>
          <li class="nav-item">
-            <a class="nav-link" href="/login">Login</a>
+            <a class="nav-link" href="/login">Iniciar Sesión</a>
           </li>
-      
+      </ul>
    </div>
    {% endif %}
 

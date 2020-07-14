@@ -1,59 +1,169 @@
-
 {% load static %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
 
 <html>
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" 
-integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-<link rel=stylesheet type="text/css" href="{% static "/css/main.css" %}">
-    <style>
-        #publicaciones{
-            margin: 10;
-            border: 10px;
-            padding:70px;
-            list-style: none;
-            text-transform: uppercase;
-        }
-        #publicaciones li{
-            display: inline;
-            margin-left: 15%;
-            border: 10px;
-        }
-        #libros{
-            margin: 10 10 10 10;
-            border: 10px 10px 10px 10px;
-            padding:70px;
-            list-style: none;
-            text-transform: uppercase;
-        }
-        #libros li{
-            display: inline-block;
-            margin: 10px 10px 10px 10px;
-            border: 10px 10px 10px 10px ;
-        }
-        #libros div p{
-            display: inline-block;
-            margin-left: 1%;
-            border: 10px;
-        }
-
-    </style>
 <body>
-    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">
+           <img src={% static '/images/bookflix.png' %} alt="logo" width="" height="">
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+               <li class="nav-item" style="margin: 10px;"> 
+                  <a class="nav-link btn btn-outline-light" href="/register_page">Registrarme</a> 
+               </li>
+               <li class="nav-item"style="margin: 10px;">
+                  <a class="nav-link btn btn-outline-light" href="/login">Iniciar Sesión</a>
+                </li>
+            </ul>
+         </div>
+    </nav>
 
-{% if request.user.is_active %}
 
-{% include "appBookflix/navbar.html" %}
+<!--
+----- Acerca de la App ------
+-titulo-
+Miles de libros para leer
+-texto-
+Sé parte de nuestra comunidad y disfrutá de miles de libros digitales en todos tus dispositivos, 
+y de forma ilimitada, con una sola membresía al precio de un libro digital.
+-boton-
+proba nuestra membresía de manera gratuita
+------------------------------
+--->
+<div style="background-image: url('static/images/reading.jpg'); background-repeat: no-repeat;
+background-attachment: fixed;
+background-size: cover; height: 550px;">
+    <div class="container-fluid">
+        <div class="row" style="height: 400px; align-items: center; padding: 50px; color: white;">
+            <div class="col-7"></div>
+            <div class="col-5">
+                <div class="row">
+                    <h1>Miles de libros para leer</h1>
+                </div>
+                <div class="row">
+                    <h5>Sé parte de nuestra comunidad y disfrutá de miles de libros digitales en todos tus dispositivos, 
+                        y de forma ilimitada, con una sola membresía al precio de un libro digital.</h5>
+                </div>
+                <div class="row" style="padding-top: 30px;">
+                    <a class="btn btn-light btn-lg" href="/register_page">Probá nuestra membresía de manera gratuita</a> 
+                </div>
+            </div>
+          </div>
+    </div>
+</div>
 
-<h1>Usted ya está logueado</h1>
+<!--
+----- Catalogo -----
+-texto-
+Miles de clásicos, bestsellers y novedades para leer. 
+-boton-
+Acceder Catalogo
+-->
 
-<ul id="barra">
-    <li>Quiere entrar con otra cuenta? toca el link de LogOut en la barra de ariba</li>
-</ul>
+<div class="container fluid"  style="height: 700px; padding: 50px 0px 50px 0px;" >
+    <div class="row" style="height: 600px; align-items: center; padding: 50px;">
+        <div class="col 5">
+            <div class="row">
+                <h1> Contamos con todos los clásicos, bestsellers y novedades para leer. </h1>
+            </div>
+            <div class="row" style="padding-top: 30px;">
+                <a class="btn btn-light btn-lg" href="#">Ver Catálogo</a> 
+            </div>
+        </div>
+        <div class="col 8" >
+            <img src={% static '/images/cat.jpg' %} alt="logo" width="" height="500px" style="object-fit: cover; object-position: center center;">
+        </div> 
+    </div>
+</div>
 
-<hr />
-{% else %}
 
-{% include "appBookflix/navbar.html" %}
+<!--
+----- PLANES -------
+-imagen-
+2 tipitos | 4 tipitos
+-titulo-
+Plan Base
+-subtitulo-
+hasta dos perfiles | hasta cuatro perfiles
+-boton-
+Mas informacion acerca de nuestros planes
+--->
+<div style="-webkit-box-shadow: inset 0px 68px 43px -24px rgba(217,214,214,1);
+-moz-box-shadow: inset 0px 68px 43px -24px rgba(217,214,214,1);
+box-shadow: inset 0px 68px 43px -24px rgba(217,214,214,1);" class="text-center">
+<div class="row">
+    <div class="col">
+        <h1 style="padding-top: 80px;">Nuestros planes</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <p> Conozca más acerca de nuestros planes accediendo <a href="#" class="alert-link">aquí</a></p>
+    </div>
+</div>
+
+
+
+<div class="container fluid"  style="height: 400px; align-items: center;" >
+    <div class="row" style="height: 400px; align-items: center;">
+        <div class="col 6">
+            <div class="row">
+                <img src="{% static '/images/per1.jpg' %}" alt="logo" width="" height="" style="display:flex;
+  margin:0 auto;">
+            </div>
+            <div class="row">
+                <div class="col text-center">
+                    <h2>Plan Base</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-center">
+                    <h6>Hasta 2 perfiles</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col 6">
+            <div class="row">
+                <img src="{% static '/images/per4.png' %}" alt="logo" width="" height=""style="display:flex;
+                margin:0 auto;">
+            </div>
+            <div class="row">
+                <div class="col text-center">
+                    <h2>Plan Premium</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-center">
+                    <h6>Hasta 4 perfiles</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+
+
+
+<!--
+----- PIE -----
+BOOKFLIX ©
+--->
+<footer class="page-footer font-small" style="background:darkred">
+
+    <!-- Copyright -->
+    <div class="footer-copyright text-center py-3" style="color: gray">
+      <p> © 2020 Copyright: Bookflix</p>
+    </div>
+    <!-- Copyright -->
+  
+  </footer>
+
+
+<!-- <div>
 
 
 <ul id="libros">
@@ -64,7 +174,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
             <div>
                 <a  href="/libro/{{libro.autor}}">{{libro.titulo}}</a> <br>
                 
-                <!---->
+                
                 <img style="max-width:275px; max-height:275px;" src="{{libro.portada.url}}"  alt="Portada" > <br>
 
                 <p>Autor: {{libro.autor}}</p> 
@@ -82,8 +192,8 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
     {% endif %}
 
 </ul>
-{% endif %}
 
+</div> -->
 
 
 

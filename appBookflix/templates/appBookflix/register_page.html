@@ -1,5 +1,13 @@
+{% extends 'appBookflix/base.html' %}
 {% block content %}
-<h2>Registro</h2>
+{% include "appBookflix/navbar_login.html" %}
+<div class="row row justify-content-center align-items-center minh-100" style="margin-top: 50px;">
+<div class=".col-md-6 .offset-md-3">
+    <div class="card text-center">
+        <div class="card-header">
+           <h3> Registro </h3>
+        </div>
+<div class="card-body text-left" >
 <form method="post">{% csrf_token %}
     {% for field in user_creation_form%}
         <p>
@@ -30,9 +38,15 @@
 
     <p></p>
 
-    <button type="submit">Registrame</button>
+    
+    <div class="text-center">
+        <button class="btn btn-dark" type="submit">Registrame</button>
+        <a class="btn btn-dark" href="/">Cancelar</a>
+        </div>
 </form>
-
+</div>
+</div>
+</div>
 {% endblock content %}
 
 
