@@ -339,7 +339,15 @@ def cambiar_nombre(request,nombre):
     context["profile_creation_form"]=form
     return render(request, 'appBookflix/cambiar_nombre.html', context)
 
+#CATALOGO
 
+def catalogo(request):
+    context={}
+    libros=Libro.objects.filter(mostrar_en_home=True)
+    try: 
+         context['libros']=libros
+    except Libro.DoesNotExist: None
+    return render(request, 'appBookflix/catalogo.html', context)
 
 #NOTICIAS
 
