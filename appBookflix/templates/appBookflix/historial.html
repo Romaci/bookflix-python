@@ -17,7 +17,6 @@
                 {% endif %}
             {% endfor %}
 
-
             {% if historial_libros_cap %}
             {% for estado in historial_libros_cap %}
                 {% if estado.profile.name == sesion.nombrePerfil %}
@@ -31,11 +30,9 @@
                     </li>
                 {% endif %}
             {% endfor %}
-            {% endif %}
-
-
             {% else %}
-            <p>No hay solicitudes de alta disponibles</p>
+            <p>Aún no tiene ningún libro en historial</p>
+            {% endif %}
             {% endif %}
         {% endif %}
     </body>
