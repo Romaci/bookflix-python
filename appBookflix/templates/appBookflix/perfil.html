@@ -1,44 +1,5 @@
-{% load static %}
 
 <html>
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-<link rel=stylesheet type="text/css" href="{% static '/css/main.css' %}">
-<style>
-    #publicaciones {
-        margin: 10;
-        border: 10px;
-        padding: 70px;
-        list-style: none;
-        text-transform: uppercase;
-    }
-
-    #publicaciones li {
-        display: inline;
-        margin-left: 15%;
-        border: 10px;
-    }
-
-    #libros {
-        margin: 10 10 10 10;
-        border: 10px 10px 10px 10px;
-        padding: 70px;
-        list-style: none;
-        text-transform: uppercase;
-    }
-
-    #libros li {
-        display: inline-block;
-        margin: 10px 10px 10px 10px;
-        border: 10px 10px 10px 10px;
-    }
-
-    #libros div p {
-        display: inline-block;
-        margin-left: 1%;
-        border: 10px;
-    }
-</style>
 <body>
 
     {% include "appBookflix/navbar.html" %}
@@ -47,6 +8,82 @@
         Cuenta de {{request.user.username}}
     </h1>
     {% block content %}
+    <div class="container">
+<div style="margin-top: 50px;">
+    <table class="table table-striped">
+        <tbody>
+            <thead>
+                <tr>
+                    <th>
+                        <h4>Datos Personales</h4>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tr>
+                <th scope="row"> Nombre de Usuario</th>
+                <td>{{request.user.username}}</td>
+                <td></td>
+
+            </tr>
+            <tr>
+                <th scope="row">Email</th>
+                <td>{{request.user.email}}</td>
+                <td><a href="/cambiar_email">Cambiar Dirección de mail</a></td>
+
+            </tr>
+
+            <tr>
+                <th scope="row">Contraseña</th>
+                <td>*****</td>
+                <td><a href="/cambiar_contrasenia">Cambiar Contraseña</a></td>
+            </tr>
+            <thead>
+                <tr>
+                    <th>
+                        <h4>Datos del Plan</h4>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tr>
+                <th scope="row">Plan</th>
+                <td>{{request.user.plan}}</td>
+                <td><a href="/solicitar_cambio">Solicitud Cambio de Plan</a></td>
+            </tr>
+            {% if request.user.plan != "free" and request.user.plan != "normal" %}
+            <tr>
+                <th scope="row">Fecha de inicio de adhesión al plan</th>
+                <td>{{request.user.date_start_plan}}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Vencimiento</th>
+                <td>{{request.user.tiempo_restante}} dias</td>
+                <td></td>
+            </tr>
+            {% endif %}
+
+            <thead>
+                <tr>
+                    <th>
+                        <h4>Datos de Tarjeta</h4>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tr>
+                <th scope="row">Número de Tarjeta</th>
+                <td>*************{{tarjeta.ult4}}</td>
+                <td><a href="/cambiar_tarjeta">Cambiar Datos de Tarjeta</a></td>
+            </tr>
+
+        </tbody>
+</div>
+</div>
     {% endblock %}
 </body>
 </html>

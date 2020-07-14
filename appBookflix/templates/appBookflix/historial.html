@@ -1,7 +1,6 @@
 <html>
     <body>
-        {% include "appBookflix/navbar.html" %}
-
+        {% include "appBookflix/navbar_home.html" %}
         {% if sesion.nombrePerfil %}
         <h1>Historial de lecturas de {{sesion.nombrePerfil}} </h1> <!--ACÁ SE PODRÍA METER EL UN HIPERVINCULO EL NOMBRE-->
             {% if historial_libros %}

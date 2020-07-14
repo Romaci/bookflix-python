@@ -1,9 +1,6 @@
 {% load static %}
 
 <html>
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" 
-integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-<link rel=stylesheet type="text/css" href="{% static "/css/main.css" %}">
     <style>
         #publicaciones{
             margin: 10;
@@ -37,7 +34,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
 
     </style>
 <body>
-        {% include "appBookflix/navbar.html" %}
+    {% include "appBookflix/navbar_home.html" %}
         <div style= "margin: auto; margin: 50px;">
             <div style="display: inline;">
                 <h2>{{libro.titulo}}</h2>
