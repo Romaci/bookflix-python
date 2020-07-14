@@ -24,7 +24,7 @@ from django.core import serializers
 
 from random import randint, uniform
 from .funcionesAutomatizacion import *
-
+import datetime
 
 
 def landing_view (request):
@@ -97,6 +97,9 @@ def register_page(request):
             email= form.cleaned_data.get('email')
             raw_password= form.cleaned_data.get('password1')
             #account = authenticate(email=email, password=raw_password)
+            cuenta.plan= 'normal'
+            cuenta.diaspagados=30
+            cuenta.save()
             
             numT= formCard.cleaned_data.get("number")
             codT= formCard.cleaned_data.get("cod")
@@ -136,6 +139,13 @@ def select_perfil(request):
     perfiles = Profile.objects.filter(account = request.user)
     return render(request, "appBookflix/select_perfil.html", {'perfiles': perfiles,}) #"tarjetaActual": tarjetaActual, "perfilActual":perfilActual})
 
+
+
+def solicitudes(request):
+    solicitudes = UserSolicitud.objects.filter(type_of_solicitud='alta', is_accepted=0)
+    usuarios= UserSolicitud.objects.filter(type_of_solicitud='alta', is_accepted=0).values('user')
+    tarjetas= CreditCards.objects.filter(user__in= usuarios)
+    return render(request,"appBookflix/solicitudes.html",{"solicitudes":solicitudes, "tarjetas":tarjetas})
 
 def login_propio(request):
     # Creamos el formulario de autenticación vacío
@@ -441,6 +451,22 @@ def calcularPuntosDeLibro(likes, cantLikes):
         aux= aux + i.points
     return (aux / cantLikes)
 
+def entreFechas(request): 
+    context={}
+    #request.session['ErrorDePerfil'] = "1"
+    context['suscriptores']=None
+    if request.POST:
+        form= suscriptosEntreFechasForm(request.POST)
+        if form.is_valid():
+            try:
+                rango2= Account.objects.filter(date_joined__range=(form.cleaned_data['de'],form.cleaned_data['hasta'] ))
+                context['suscriptores']=rango2
+            except Account.DoesNotExist:
+                pass
+    
+    form=suscriptosEntreFechasForm()
+    context['rango2']=form #guarda formulario vacío
+    return render(request, 'appBookflix/buscarSuscriptores.html', context)
 
 
 
@@ -449,29 +475,29 @@ def leer_libro(request,isbn):
      context={}
      libro= Libro.objects.get(isbn = isbn)  #Aca recupero el libro por el isbn para no cambiar el template
      request.session["lectura_otro_perfil"] = False
-     if request.user.plan == 'normal':
-        try:
-            perfil = Profile.objects.exclude(id=request.session["perfil_ayuda"]).get(account=request.user) #aca agrego el isbn al objeto
-            try: 
-                state = StateOfBook.objects.get(state="reading", profile=perfil, book= libro.id)
-                request.session["lectura_otro_perfil"] = True
-            except StateOfBook.DoesNotExist:
-                pass 
-        except Profile.DoesNotExist:
-            pass    
-        try:
-            estado_propio = StateOfBook.objects.get(state="reading", profile=request.session["perfil_ayuda"])
-            comenzado = True
-            context['comenzado']= comenzado
-        except StateOfBook.DoesNotExist:
-            comenzado = False
-            context['comenzado']= comenzado
-            context['terminado']= True
+     #if request.user.plan == 'normal' or request.user.plan == 'free' or request.user.plan == 'premium':
+       # try:
+        #    perfil = Profile.objects.exclude(id=request.session["perfil_ayuda"]).get(account=request.user) #aca agrego el isbn al objeto
+        #    try: 
+         #       state = StateOfBook.objects.get(state="reading", profile=perfil, book= libro.isbn)
+         #       request.session["lectura_otro_perfil"] = True
+         #   except StateOfBook.DoesNotExist:
+         #       pass 
+      #  except Profile.DoesNotExist:
+        #    pass    
+      #  try:
+       #     estado_propio = StateOfBook.objects.get(state="reading", profile=request.session["perfil_ayuda"])
+      #      comenzado = True
+       #     context['comenzado']= comenzado
+      #  except StateOfBook.DoesNotExist:
+       #     comenzado = False
+       #     context['comenzado']= comenzado
+       #     context['terminado']= True
 
         
 
      try:
-        estado = StateOfBook.objects.get(state="finished", profile=request.session["perfil_ayuda"])
+        estado = StateOfBook.objects.get(state="finished", profile=request.session["perfil_ayuda"],book=libro)
         context['terminado']= True
      except:
          context['terminado']= False
@@ -495,7 +521,7 @@ def leer_libro(request,isbn):
      context['comentarios']= comentarios
      #Este try lo agregué para el Agregar y quitar de leyendo, reever en un futuro
      try:
-        estado_propio = StateOfBook.objects.get(state="reading", profile=request.session["perfil_ayuda"])
+        estado_propio = StateOfBook.objects.get(state="reading", profile=request.session["perfil_ayuda"],book=libro)
         comenzado = True
         context['comenzado']= comenzado
      except StateOfBook.DoesNotExist:
@@ -516,6 +542,122 @@ def leer_libro(request,isbn):
      except StateOfBook.DoesNotExist:
         context['agregar_futura_lectura'] = True    
      return render(request,"appBookflix/leer_libro.html",context) 
+
+
+
+def leer_libro_por_capitulo(request,isbn):
+     context= {}
+     libro = BookByChapter.objects.get(isbn=isbn)
+     if libro.mostrar_en_home == False:
+        return redirect('/')
+     cap_actual = 1
+     capitulos=[]
+     for i in range (0,libro.cant_chapter): 
+        try: 
+            Chapter.objects.get(book=libro, number=cap_actual, active=True) 
+            capitulos.append(Chapter.objects.get(book=libro, number=cap_actual))
+            cap_actual = cap_actual + 1
+        except Chapter.DoesNotExist: 
+            pass
+        #capitulos = Chapter.objects.filter(book=libro)
+     try: 
+        puntajeMio= LikeBookByChapter.objects.get(book=libro, author= request.session['perfil_ayuda'])
+     except: 
+        puntajeMio= 0
+     try:
+        likes= LikeBookByChapter.objects.filter(book= libro)
+        cantLikes= LikeBookByChapter.objects.filter(book= libro).count()
+        puntaje= calcularPuntosDeLibro(likes, cantLikes)
+     except: puntaje= 0
+
+     comentarios= CommentBookByChapter.objects.filter(publication = libro)
+     context['capitulos']=capitulos
+     context['libro']= libro
+     context['comentarios']= comentarios
+     context['puntaje']= puntaje
+     context['puntajeMio']= puntajeMio
+
+
+
+     #desde acá empiezo a agregar funcionalidades del otro leer
+
+     
+     request.session["lectura_otro_perfil"] = False
+     if request.user.plan == 'normal'  :
+        try:
+            perfil = Profile.objects.exclude(id=request.session["perfil_ayuda"]).get(account=request.user) #aca agrego el isbn al objeto
+            try: 
+                state = StateOfBookByChapter.objects.get(state="reading", profile=perfil, book= libro.isbn)
+                request.session["lectura_otro_perfil"] = True
+            except StateOfBookByChapter.DoesNotExist:
+                pass 
+        except Profile.DoesNotExist:
+            pass    
+        try:
+            estado_propio = StateOfBookByChapter.objects.get(state="reading", profile=request.session["perfil_ayuda"])
+            comenzado = True
+            context['comenzado']= comenzado
+        except StateOfBookByChapter.DoesNotExist:
+            comenzado = False
+            context['comenzado']= comenzado
+            context['terminado']= True
+
+            ##
+            state = StateOfBookByChapter.objects.get(state="finished", profile=perfil, book= libro.isbn)
+            context['terminado']= True
+
+     try:
+        estado = StateOfBookByChapter.objects.get(state="finished", book=libro, profile=request.session["perfil_ayuda"])
+        context['terminado']= True
+     except:
+         context['terminado']= False
+
+
+     libro = BookByChapter.objects.get(isbn=isbn)
+     try: 
+        puntajeMio= Like.objects.get(book=libro, author= request.session['perfil_ayuda'])
+     except: 
+         puntajeMio= 0
+     try:
+         likes= LikeBookByChapter.objects.filter(book=libro)
+         cantLikes= LikeBookByChapter.objects.filter(book=libro).count()
+         puntaje= calcularPuntosDeLibro(likes, cantLikes)
+     except: puntaje= 0
+
+     comentarios= CommentBookByChapter.objects.filter(publication = libro)
+     context['puntaje']= puntaje
+     context['puntajeMio']= puntajeMio
+     context['libro']= libro
+     context['comentarios']= comentarios
+     #Este try lo agregué para el Agregar y quitar de leyendo, reever en un futuro
+     try:
+        estado_propio = StateOfBookByChapter.objects.get(state="reading", book=libro, profile=request.session["perfil_ayuda"])
+        comenzado = True
+        context['comenzado']= comenzado
+     except StateOfBookByChapter.DoesNotExist:
+        comenzado = False
+        context['comenzado']= comenzado
+     #Fin del try de leyendo
+     try:
+        perfil = Profile.objects.get(id=request.session["perfil_ayuda"]) 
+        favorito = LibroPorCapituloFavorito.objects.get(isbn=isbn, profile=perfil)
+        context['agregar_favorito'] = False
+     except LibroPorCapituloFavorito.DoesNotExist:
+        context['agregar_favorito'] = True 
+     try: 
+        perfil = Profile.objects.get(id=request.session["perfil_ayuda"]) 
+        libro = BookByChapter.objects.get(isbn=isbn)
+        futura_lectura = StateOfBookByChapter.objects.get(state="future_reading", book=libro, profile=perfil)
+        context['agregar_futura_lectura'] = False
+     except StateOfBookByChapter.DoesNotExist:
+        context['agregar_futura_lectura'] = True 
+
+    
+     favoritos = CapituloFavorito.objects.filter(profile=perfil, book=libro)#.values("titulo_capitulo")
+     
+     context["favoritos"]= favoritos
+     
+     return render(request,"appBookflix/libro_capitulo.html",context) 
 
 
 #acciones de usuario con los libros
@@ -786,7 +928,7 @@ def solicitar_cambio(request):
         if form.is_valid():
             planSolicitad= form.cleaned_data['tipo_de_plan']
             if planSolicitad == request.user.plan:
-                request.session['ErrorSolicitudCambio']="Qué le dijimos? no puede elegir su plan XD"
+                request.session['ErrorSolicitudCambio']="No puede seleccionar un plan"
                 request.session.modified=True
             elif planSolicitad == 'free':
                 sol=UserSolicitud(type_of_solicitud='baja', type_of_plan='free', user= request.user)
@@ -813,12 +955,6 @@ def solicitar_cambio(request):
     return render(request,"appBookflix/solicitar_cambio.html", context)
 
 
-def solicitudes(request):
-    solicitudes = UserSolicitud.objects.filter(type_of_solicitud='alta', is_accepted=0)
-    usuarios= UserSolicitud.objects.filter(type_of_solicitud='alta', is_accepted=0).values('user')
-    tarjetas= CreditCards.objects.filter(user__in= usuarios)
-    return render(request,"appBookflix/solicitudes.html",{"solicitudes":solicitudes, "tarjetas":tarjetas})
-
 
 def aceptarSolicitud(request,idSol,num):
     try:
@@ -839,6 +975,8 @@ def aceptarSolicitud(request,idSol,num):
     except UserSolicitud.DoesNotExist:
         pass
     return redirect('/solicitudes')   
+
+
 
 
 #BUSCAR
@@ -963,26 +1101,26 @@ def simuladorTemporal(request):
    #Libros
     try:
         Lib= UpDownBook.objects.filter(up_normal =timezone.now()).values('book')
-        li= Libro.objects.filter(id__in=Lib)
+        li= Libro.objects.filter(isbn__in=Lib)
         cambioNormal(li, True)
         
     except UpDownBook.DoesNotExist:
         pass
     try:
         Lib= UpDownBook.objects.filter(expiration_normal=timezone.now().date()).values('book')         
-        li= Libro.objects.filter(id__in=Lib)
+        li= Libro.objects.filter(isbn__in=Lib)
         cambioNormal(li, False)
     except UpDownBook.DoesNotExist:
         pass
     try:
         Lib= UpDownBook.objects.filter(up_premium =timezone.now()).values('book')
-        li= Libro.objects.filter(id__in=Lib)
+        li= Libro.objects.filter(isbn__in=Lib)
         cambioPremium(li, True)
     except UpDownBook.DoesNotExist:
         pass
     try:
         Lib= UpDownBook.objects.filter(expiration_premium=timezone.now().date()).values('book')         
-        li= Libro.objects.filter(id__in=Lib)
+        li= Libro.objects.filter(isbn__in=Lib)
         cambioPremium(li,False)
     except UpDownBook.DoesNotExist:
         pass
@@ -1030,12 +1168,12 @@ def simuladorTemporal(request):
     #Novedades
 
     try:
-        cha= UpDownNovedad.objects.filter(up =timezone.now()).values('Billboard')
+        cha= UpDownNovedad.objects.filter(up =timezone.now()).values('Novedad')
         c= Novedad.objects.filter(id__in=cha)
         cambioBilTra(c, True )
     except Novedad.DoesNotExist: pass
     try:
-        cha= UpDownNovedad.objects.filter(expirationl =timezone.now()).values('Billboard')
+        cha= UpDownNovedad.objects.filter(expirationl =timezone.now()).values('Novedad')
         c= Novedad.objects.filter(id__in=cha)
         cambioBilTra(c, False )
     except Novedad.DoesNotExist: pass
@@ -1055,10 +1193,30 @@ def simuladorTemporal(request):
 
     #Bajas usuarios
     try:
-        sol= UserSolicitud.objects.filter(type_of_solicitud='baja').values('user')
-        ac= Account.objects.filter(id__in= sol)
-        darDeBajaUsuarios(ac)
-        context['libros']= ac
+        sol= UserSolicitud.objects.filter(type_of_solicitud='baja', is_accepted=0).values('user', 'is_accepted', 'id')
+        darDeBajaUsuarios(sol)
+        context['libros']= sol
     except UserSolicitud.DoesNotExist: pass
-    #return render(request, "bookflix/simuladorTemporal.html", context)
+
+
+    try:
+        sol= UserSolicitud.objects.filter(type_of_solicitud='cambio', type_of_plan='normal', is_accepted=0).values('user', 'is_accepted', 'id')
+        CambiarjaUsuariosNormal(sol)
+        context['libros']= sol
+    except UserSolicitud.DoesNotExist: pass
+
+    try:
+        sol= UserSolicitud.objects.filter(type_of_solicitud='cambio', type_of_plan='premium', is_accepted=0).values('user', 'is_accepted', 'id')
+        CambiarjaUsuariosPremium(sol)
+        context['libros']= sol
+    except UserSolicitud.DoesNotExist: pass
     return redirect('/solicitudes')
+
+
+
+
+
+
+
+
+    

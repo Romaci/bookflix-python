@@ -85,3 +85,7 @@ class ChapForm(ModelForm):
         exclude = ['id', ]
 
 
+class suscriptosEntreFechasForm(forms.Form):
+    de=forms.DateField(required=True, widget = forms.SelectDateWidget)
+    hasta=forms.DateField( required=True, widget = forms.SelectDateWidget)
+   

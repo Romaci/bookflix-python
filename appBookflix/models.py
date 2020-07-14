@@ -370,7 +370,7 @@ class Chapter(models.Model):
 
 "-------LibroFavorito-------"
 class LibroFavorito(models.Model):
-    isbn = models.CharField( max_length=16, unique=True, validators =[validateIsbn, validateIsbnNum],)
+    isbn = models.CharField( max_length=16, validators =[validateIsbn, validateIsbnNum],)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="perfil",blank=True, null=True)
     book = models.ForeignKey(Libro, on_delete=models.CASCADE, verbose_name="libro",blank=True, null=True)
 
@@ -390,7 +390,7 @@ class LibroFavorito(models.Model):
 
 "-------LibroPorCapituloFavorito-------"
 class LibroPorCapituloFavorito(models.Model):
-    isbn = models.CharField( max_length=16, unique=True, validators =[validateIsbn, validateIsbnNum],)
+    isbn = models.CharField( max_length=16, validators =[validateIsbn, validateIsbnNum],)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="perfil",blank=True, null=True)
     book = models.ForeignKey(BookByChapter, on_delete=models.CASCADE, verbose_name="libro",blank=True, null=True)
 
@@ -679,20 +679,21 @@ def esCorrecto(value):
 
 class UpDownBook(models.Model):
     book = models.ForeignKey(Libro, verbose_name=("libro"), on_delete=models.CASCADE)
-    up_normal= models.DateField("pasar a normal", default= timezone.now(), validators=[esCorrecto])
-    expiration_normal= models.DateField("expiracion normal", default= timezone.now(), validators=[esCorrecto])
+    up_normal= models.DateField("programar publicación", default= timezone.now(), validators=[esCorrecto])
+    expiration_normal= models.DateField("programar expiración", default= timezone.now(), validators=[esCorrecto])
     up_premium= models.DateField("pasar a premium",default= timezone.now(), validators=[esCorrecto])
     expiration_premium= models.DateField("expiracion premium", default= timezone.now(), validators=[esCorrecto])   
 
     def clean(self):
         if (self.up_normal >= self.expiration_normal):
-            raise ValidationError('La fecha de baja no puede ser inferior a la de subida para normal o premium')
+            raise ValidationError('La fecha de baja no puede ser inferior a la de subida')
+        #
         if (self.up_premium >= self.expiration_premium):
-            raise ValidationError('La fecha de baja no puede ser inferior a la de subida para premium o normal')
+           raise ValidationError('La fecha de baja no puede ser inferior a la de subida')
 
     class Meta:
-        verbose_name = "Subir-Bajar-Libro"
-        verbose_name_plural = "Subir-Bajar-Libro"
+        verbose_name = "Programar publicación libro"
+        verbose_name_plural = "Programar publicación libros"
 
     def __str__(self):
         #boo= Book.objects.get(isbn=self.book)
@@ -700,20 +701,20 @@ class UpDownBook(models.Model):
     
 class UpDownBookByChapter(models.Model):
     book = models.ForeignKey(BookByChapter, verbose_name=("libro"), on_delete=models.CASCADE)
-    up_normal= models.DateField("pasar a normal", default= timezone.now(), validators=[esCorrecto])
-    expiration_normal= models.DateField("expiracion normal", default= timezone.now(), validators=[esCorrecto])
-    up_premium= models.DateField("pasar a premium",default= timezone.now(), validators=[esCorrecto])
-    expiration_premium= models.DateField("expiracion premium", default= timezone.now(), validators=[esCorrecto])    
+    up_normal= models.DateField("programar publicación", default= timezone.now(), validators=[esCorrecto])
+    expiration_normal= models.DateField("programar expiración", default= timezone.now(), validators=[esCorrecto])
+    #up_premium= models.DateField("pasar a premium",default= timezone.now(), validators=[esCorrecto])
+    #expiration_premium= models.DateField("expiracion premium", default= timezone.now(), validators=[esCorrecto])    
 
     class Meta:
-        verbose_name = "Subir-Bajar-LibroPorCapitulo"
-        verbose_name_plural = "Subir-Bajar-LibroPorCapitulo"
+        verbose_name = "Programar publicación libro por capítulo"
+        verbose_name_plural = "Programar publicación libros por capítulo"
 
     def clean(self):
         if (self.up_normal >= self.expiration_normal):
-            raise ValidationError('La fecha de baja no puede ser inferior a la de subida para normal o premium')
-        if (self.up_premium >= self.expiration_premium):
-            raise ValidationError('La fecha de baja no puede ser inferior a la de subida para premium o normal')
+            raise ValidationError('La fecha de baja no puede ser inferior a la de subida')
+        #if (self.up_premium >= self.expiration_premium):
+           # raise ValidationError('La fecha de baja no puede ser inferior a la de subida para premium o normal')
 
     def __str__(self):
         str(self.book)
@@ -729,8 +730,8 @@ class UpDownChapter(models.Model):
             raise ValidationError('La fecha de baja no puede ser inferior a la de subida')
     
     class Meta:
-        verbose_name = "Subir-Bajar-Capitulo"
-        verbose_name_plural = "Subir-Bajar-Capitulos"
+        verbose_name = "Programar publicación capítulo"
+        verbose_name_plural = "Programar publicación capítulos"
 
     def __str__(self):
         return str(self.chapter)
@@ -741,8 +742,8 @@ class UpDownNovedad(models.Model):
     up= models.DateField("DarDeAlta", default= timezone.now(), validators=[esCorrecto])
     expirationl= models.DateField("DarDeBaja", default= timezone.now(), validators=[esCorrecto])
     class Meta:
-        verbose_name = "Subir-Bajar-Publicacion"
-        verbose_name_plural = "Subir-Bajar-Publicaciones"
+        verbose_name = "Programar publicación de Novedad"
+        verbose_name_plural = "Programar publicación de Novedades"
 
     def clean(self):
         if (self.up >= self.expirationl):
@@ -756,8 +757,8 @@ class UpDownTrailer(models.Model):
     up= models.DateField("DarDeAlta", default= timezone.now(), validators=[esCorrecto])
     expirationl= models.DateField("DarDeBaja", default= timezone.now(), validators=[esCorrecto])
     class Meta:
-        verbose_name = "Subir-Bajar-Trailer"
-        verbose_name_plural = "Subir-Bajar-Trailer"
+        verbose_name = "Programar publicación de Trailer"
+        verbose_name_plural = "Programar publicación de Trailers"
     
     def clean(self):
         if (self.up >= self.expirationl):

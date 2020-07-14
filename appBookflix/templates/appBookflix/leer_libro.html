@@ -45,15 +45,17 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
             </div>  
                     <br>
                     <!-- -->
-                    <p> {{libro.descripcion}} </p>
-                    <p> Autor(a): {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
+                    
+                    <p> Autor: {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
+                    <p> Sinopsis: {{libro.descripcion}} </p>
+                    <p> Editorial: {{libro.editorial.name}} </p>
                     
                     <p> Género(s): {%for genero in libro.genero.all %}
                         | {{genero.nombre}} |
 
                     {% endfor %}
                     </p>
-                    <p> Editorial: {{libro.editorial.name}} </p>
+                    
                     
                     <P>Puntuación: {{puntaje}}</P>
                     {% if terminado %}
@@ -74,7 +76,7 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                     {% endif %}
                    
                 
-                    {% if request.session.lectura_otro_perfil == False %}
+                   
                         <a href="{{libro.pdf.url}}">Ver Libro</a>
                         <br>
                         {% if terminado == False  %}
@@ -104,11 +106,11 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                         <a style="margin-top:30px;margin-bottom: 30px;" href="/quitar_libro/{{libro.isbn}}"> Quitar de Favoritos</a>
                     </div>
                     {% endif %}
-                    {% else %}
+                   
 
-                        <p>Suba el plan</p>
+                        
 
-                    {% endif %}
+                   
                         {% if terminado == False  %}                
                             {% if agregar_futura_lectura == True and comenzado == False %}        
                                    
@@ -139,17 +141,16 @@ integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7
                                   
                             {% endif %}
                         {% else %}
-                        <p>El valor de comenzado es:{{comenzado}}</p>
+                        
                     {% endif %}
 
         </div>
     
 
-        
-        {% if terminado %}
+    
             <a href="/comentar/{{libro.isbn}}"> comentar</a>
             <br>
-        {% endif%}
+        
 
         {% for coment in comentarios%}
             
