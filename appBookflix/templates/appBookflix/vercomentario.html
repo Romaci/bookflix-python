@@ -1,3 +1,9 @@
+<html>
+<head>
+{% load static %}
+
+</head>
+<body>
 {% include "appBookflix/navbar.html" %}
 
 {%if editar == 'True' or user.is_admin%}
@@ -30,3 +36,9 @@
 {%else%}
     <a href="/vermiscomentarios/"> volver a su perfil</a>
 {%endif%}
+</body>
+</html>
+
+
+
+

@@ -1,3 +1,13 @@
+
+
+<html>
+<head>
+{% load static %}
+{% include "appBookflix/navbar.html" %}
+</head>
+<body>
+
+<div class="container" style="margin-top: 30px;">
 <form method="POST"> {% csrf_token %}
     
     {% for field in comentario %}
@@ -11,3 +21,15 @@
  {% if queES == 1%}
  {%endif%}
  <a href="/leer_libro/{{isbn}}" > volver </a>
+ </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

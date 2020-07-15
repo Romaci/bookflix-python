@@ -160,6 +160,7 @@ class CreditCardsUsed(models.Model):
 
 #AUTOR 
 class Autor (models.Model):
+   
     nombre= models.CharField(max_length=50, blank=True, null=True)
     apellido= models.CharField(max_length=50, blank=True, null=True)
     #image= models.ImageField("imagen", upload_to='bookflix/static/autores', height_field=None, width_field=None, max_length=None, blank=True, null=True)
@@ -174,9 +175,13 @@ class Autor (models.Model):
 
     def __str__(self):         
         return "%s %s" %(self.nombre, self.apellido)
+
+   
+      
     class Meta:
         verbose_name = "Autor"
         verbose_name_plural = "Autores"
+        unique_together= ("nombre", "apellido")
 
 
 #GÉNERO 
@@ -247,8 +252,8 @@ class Libro (models.Model):
     genero = models.ManyToManyField(Genero, verbose_name="generos")
     editorial = models.ForeignKey(Editorial, on_delete=models.CASCADE)
     mostrar_en_home= models.BooleanField(default=False)
-    on_normal = models.BooleanField("ver en normal", default=False)
-    on_premium = models.BooleanField("ver en premium",default=False)
+    #on_normal = models.BooleanField("ver en normal", default=False)
+    #on_premium = models.BooleanField("ver en premium",default=False)
     pdf = models.FileField(upload_to='pdf', blank=True, null=True)   #por si en un futuro hacemos que se guarde en la base de datos
 
     def publish(self):         
@@ -310,8 +315,8 @@ class BookByChapter(models.Model):
     genders = models.ManyToManyField(Genero, verbose_name="generos")
     editorial = models.ForeignKey(Editorial, on_delete=models.CASCADE)
     mostrar_en_home= models.BooleanField(default=False)
-    on_normal = models.BooleanField("ver en normal", default=False)
-    on_premium = models.BooleanField("ver en premium",default=False)
+    #on_normal = models.BooleanField("ver en normal", default=False)
+    #on_premium = models.BooleanField("ver en premium",default=False)
 
 
 
@@ -479,7 +484,7 @@ class Novedad(models.Model):
     description = models.TextField("descripcion",blank=True, null=True)
     mostrar_en_home= models.BooleanField(default=False)
     author = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name="autor")
-    imagen= models.ImageField(("imagen"), upload_to='novedades', height_field=None, width_field=None, max_length=None, )
+    imagen= models.ImageField(("imagen"), upload_to='novedades', height_field=None, width_field=None, max_length=None, blank=True, null=True )
     video=  models.URLField(  max_length=255, blank=True, null=True)
 
     def publish(self):

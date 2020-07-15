@@ -40,13 +40,18 @@
      <li class="nav-item">
        <a class="nav-link" href="/select_perfil">Salir Perfil</a>
      </li>
-      <li><a class="nav-link" href="/logout">Cerrar Sesion</a></li>
+      <li><a class="nav-link" href="/logout">Cerrar Sesión</a></li>
       <span class="ml-auto" style="font-weight: bold;color: white !important;font-size: 1.5rem; justify-content: right;">
-     {{request.session.nombrePerfil}}
+     <div style="left-padding:100px">
+         de {{request.session.nombrePerfil}}
+      </div>
    </span>
    {% else %}
          {% if request.user.is_admin %}
-        
+      
+         <a class="nav-link" href="/home ">Home <span class="sr-only">(current)</span></a>
+         
+          <a class="nav-link" href="/logout">Cerrar Sesión</a>
    </span>
          {% endif %}
    

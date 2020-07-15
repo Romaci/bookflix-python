@@ -63,6 +63,7 @@ urlpatterns = [
     path('noticias/', noticias, name="noticias"),
     path('catalogo/', catalogo, name="catalogo"),
     path('homeAdmin/', homeAdmin, name="homeAdmin"),
+    path('catalogo_landing/', catalogo_landing, name="catalogo_landing"),
     
 
 ]   + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

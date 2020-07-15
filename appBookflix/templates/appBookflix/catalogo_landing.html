@@ -1,18 +1,28 @@
-{% load static %}
-{% load bootstrap4 %}
-{% bootstrap_css %}
-{% bootstrap_javascript jquery='full' %}
-{% include "appBookflix/navbar_home.html" %}
+<html>
 
+<head>
+  {% load static %}
+  {% load bootstrap4 %}
+  {% bootstrap_css %}
+  {% bootstrap_javascript jquery='full' %}
+</head>
 
+{% include "appBookflix/navbar_login.html" %}
 <div class="container py-5">
-
-
-
-
- {% if noticias %}
-
-{% for noticia in noticias %}  
+  {% if libros %}
+  <div center>
+    <h1>Catálogo disponible</h1>
+  </div>
+  <br>
+  <div class="container">
+    <div class="row">
+      <div class="col align-self-end">
+        <a class="btn btn-dark" href="/">Volver</a>
+      </div>
+    </div>
+  </div>
+  <br>
+  {% for libro in libros %}
   <div class="row">
     <div class="col-lg-8 mx-auto">
 
@@ -22,47 +32,44 @@
         <!-- list group item-->
         <li class="list-group-item">
           <!-- Custom content-->
-          
+
           <div class="media align-items-lg-center flex-column flex-lg-row p-1">
             <div class="media-body order-2 order-lg-1">
-              <h5 class="mt-0 font-weight-bold mb-2"> {{noticia.title}}</a></h5>
-              <p class="font-italic text-muted mb-0 small">{{noticia.description}}</p>
+              <h5 class="mt-0 font-weight-bold mb-2"> {{libro.titulo}}</h5>
+              <p class="font-italic text-muted mb-0 small">{{libro.descripcion}}</p>
               <div class="d-flex align-items-center justify-content-between mt-1">
-                 
+                <p> Autor: {{libro.autor.nombre}}, {{libro.autor.apellido}} </p>
+                <p> Género: {%for genero in libro.genero.all %}
+                  | {{genero.nombre}} |
+
+                  {% endfor %}
+                </p>
                 <ul class="list-inline small">
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star-o text-gray"></i></li>
-                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
-                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
-                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
-                  <li class="list-inline-item m-0"><i class="fa fa-star-o text-gray"></i></li>
-                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star-o text-gray"></i></li>
-                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star-o text-gray"></i></li>
+                  <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star text-success"></i></li>
                   <li class="list-inline-item m-0"><i class="fa fa-star-o text-gray"></i></li>
                 </ul>
               </div>
-              
-               {% if noticia.imagen %}
-                <br>
-                </div>
-                <img src={{noticia.imagen.url}} alt="Generic placeholder image" width="200" class="ml-lg-5 order-1 order-lg-2">
-                {% endif %}
-                 {% if noticia.video %}
-                <br>
-                <iframe   width="460" height="250" src={{noticia.video}} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> 
-                {% endif %}     
-      
+            </div><img src="{{libro.portada.url}}" alt="Generic placeholder image" width="200"
+              class="ml-lg-5 order-1 order-lg-2">
+
           </div>
           <!-- End -->
         </li>
@@ -73,13 +80,8 @@
   </div>
   <br>
   {% endfor %}
-                   
-                       {% else %}
-        <p>¡No hay noticias!</p>
-    {% endif %}
-    <a href="/home" > volver a home </a>
-    
+  {% endif %}
 
 </div>
 
-
+</html>

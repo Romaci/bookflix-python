@@ -27,11 +27,15 @@ from .funcionesAutomatizacion import *
 import datetime
 
 
-def landing_view (request):
-    context = {}
-    libros = Libro.objects.all()
-    context['libros']=libros
-    return render(request, "appBookflix/landingPage.html", context)
+
+
+def catalogo_landing(request):
+    context={}
+    libros=Libro.objects.filter(mostrar_en_home=True)
+    try: 
+         context['libros']=libros
+    except Libro.DoesNotExist: None
+    return render(request, 'appBookflix/catalogo_landing.html', context)
 
 def homeAdmin (request):
     context = {}
@@ -181,7 +185,10 @@ def login_propio(request):
                 # Hacemos el login manualmente  Y le redireccionamos a la portada
                 ##if user.confirmo:
                 do_login(request, user)
-                return redirect('/select_perfil')
+                if request.user.is_admin:
+                    return redirect('/home')
+                else:
+                    return redirect('/select_perfil')
               ##  #request.session['emailConfirm']= user.email
               ##  #request.session.modified = True
                ## #return redirect('/confirmarCuenta')
@@ -360,6 +367,8 @@ def catalogo(request):
 def noticias(request):
     noticia=Novedad.objects.filter(mostrar_en_home=True)
     return render(request, "appBookflix/noticias.html",{'noticias':noticia })
+
+
 
 #COMENTARIOS
 
